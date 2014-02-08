@@ -1,0 +1,10 @@
+update_last_change
+CREATE FUNCTION update_last_change() RETURNS trigger AS $$
+    BEGIN
+        NEW.last_change := current_timestamp;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_last_change BEFORE UPDATE ON active_events
+    FOR EACH ROW EXECUTE PROCEDURE update_last_change();

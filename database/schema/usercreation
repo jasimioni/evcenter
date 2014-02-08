@@ -1,0 +1,2 @@
+create user evcenter;
+create database evcenter owner evcenter;
