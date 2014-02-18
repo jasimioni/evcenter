@@ -1,43 +1,31 @@
-          <div class="row">
-            <div class="col-md-12">
+<table id='el'></table>
 
-              <div class="widget">
-                <div class="widget-head">
-                  <div class="pull-left">Lista de Eventos</div>
-                  <div class="widget-icons pull-right">
-                    <a href="#" class="wminimize"><i class="icon-chevron-up"></i></a> 
-                    <a href="#" class="wclose"><i class="icon-remove"></i></a>
-                  </div>  
-                  <div class="clearfix"></div>
-                </div>
-                <div class="widget-content">
+<script>
+  $(document).ready(function() {
+    var vColModel = [];
+    [% FOR header IN fields %]
+      vColModel.push({ name: '[% header %]', index: '[% header %]', width: 150 });
+    [% END %]
 
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr>
-                            [% FOR header IN fields %]
-                                <th>[% header %]</th>
-                            [% END %]
-                            </tr>
-                        </thead>
-                        <tbody>
-                            [% FOR row IN rows %]
-                                <tr>
-                                    [% FOR header IN fields %]
-                                        <td>[% row.$header %]</td>
-                                    [% END %]
-                                </tr>
-                            [% END %]
-                        </tbody>
+    cHeight = $(window).height() - $('#el').offset().top - 60 - 31;
 
-                    </table>
+    $('#el').jqGrid({        
+      datatype: "local",
+      height: cHeight,
+      colNames: [
+          '[% fields.join("', '") %]'
+      ],
+      colModel: vColModel,
+      autowidth: true,
+      caption: "Event List"
+    });
 
-
-                  <div class="widget-foot">
-                    <!-- Footer goes here -->
-                  </div>
-                </div>
-              </div>  
-              
-            </div>
-          </div>
+    [% FOR row IN rows %]
+      var event_data = {};        
+      [% FOR header IN fields %]
+        event_data['[% header %]'] = '[% row.$header %]';
+      [% END %]
+      $('#el').jqGrid('addRowData', event_data['serial'], event_data);
+    [% END %]
+  });
+</script>

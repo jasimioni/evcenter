@@ -22,18 +22,21 @@
   <!-- prettyPhoto -->
   <link rel="stylesheet" href="[% c.uri_for('/static/style/prettyPhoto.css') %]">  
   <!-- Star rating -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/rateit.css') %]">
+  <!-- link rel="stylesheet" href="[% c.uri_for('/static/style/rateit.css') %]" -->
   <!-- Date picker -->
   <link rel="stylesheet" href="[% c.uri_for('/static/style/bootstrap-datetimepicker.min.css') %]">
   <!-- CLEditor -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/jquery.cleditor.css') %]">  
+  <link rel="stylesheet" href="[% c.uri_for('/static/style/jquery.cleditor.css') %]"> 
+  <!-- Uniform -->
+  <!-- link rel="stylesheet" href="[% c.uri_for('/static/style/uniform.default.css') %]" --> 
   <!-- Bootstrap toggle -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/bootstrap-switch.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/style/bootstrap-toggle-buttons.css') %]">
   <!-- Main stylesheet -->
   <link href="[% c.uri_for('/static/style/style.css') %]" rel="stylesheet">
   <!-- Widgets stylesheet -->
-  <link href="[% c.uri_for('/static/style/widgets.css') %]" rel="stylesheet">   
-  
+  <link href="[% c.uri_for('/static/style/widgets.css') %]" rel="stylesheet"> 
+  <link href="[% c.uri_for('/static/jqgrid/css/ui.jqgrid.css') %]" rel="stylesheet">    
+  <link href="[% c.uri_for('/static/style/custom.css') %]" rel="stylesheet">  
   <!-- HTML5 Support for IE -->
   <!--[if lt IE 9]>
   <script src="[% c.uri_for('/static/js/html5shim.js') %]"></script>
@@ -41,6 +44,39 @@
 
   <!-- Favicon -->
   <link rel="shortcut icon" href="[% c.uri_for('/static/img/favicon/favicon.png') %]">
+  <!-- JS -->
+  <script src="[% c.uri_for('/static/js/jquery.js') %]"></script> <!-- jQuery -->
+  <script src="[% c.uri_for('/static/js/bootstrap.js') %]"></script> <!-- Bootstrap -->
+  <script src="[% c.uri_for('/static/js/jquery-ui-1.9.2.custom.min.js') %]"></script> <!-- jQuery UI -->
+  <script src="[% c.uri_for('/static/js/fullcalendar.min.js') %]"></script> <!-- Full Google Calendar - Calendar -->
+  <script src="[% c.uri_for('/static/js/jquery.rateit.min.js') %]"></script> <!-- RateIt - Star rating -->
+  <script src="[% c.uri_for('/static/js/jquery.prettyPhoto.js') %]"></script> <!-- prettyPhoto -->
+
+  <!-- jQuery Flot -->
+  <script src="[% c.uri_for('/static/js/excanvas.min.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.resize.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.pie.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.stack.js') %]"></script>
+
+  <!-- jQuery Notification - Noty -->
+  <script src="[% c.uri_for('/static/js/jquery.noty.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/themes/default.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/layouts/bottom.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/layouts/topRight.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/layouts/top.js') %]"></script> <!-- jQuery Notify -->
+  <!-- jQuery Notification ends -->
+
+  <script src="[% c.uri_for('/static/js/sparklines.js') %]"></script> <!-- Sparklines -->
+  <script src="[% c.uri_for('/static/js/jquery.cleditor.min.js') %]"></script> <!-- CLEditor -->
+  <script src="[% c.uri_for('/static/js/bootstrap-datetimepicker.min.js') %]"></script> <!-- Date picker -->
+  <!-- script src="[% c.uri_for('/static/js/jquery.uniform.min.js') %]"></script--> <!-- jQuery Uniform -->
+  <script src="[% c.uri_for('/static/js/jquery.toggle.buttons.js') %]"></script> <!-- Bootstrap Toggle -->
+  <script src="[% c.uri_for('/static/js/filter.js') %]"></script> <!-- Filter for support page -->
+  <script src="[% c.uri_for('/static/jqgrid/js/jquery.jqGrid.min.js') %]"></script> <!-- Filter for support page -->
+  <script src="[% c.uri_for('/static/js/custom.js') %]"></script> <!-- Custom codes -->
+  <script src="[% c.uri_for('/static/js/charts.js') %]"></script> <!-- Charts & Graphs -->
+
 </head>
 
 <body>
@@ -108,9 +144,9 @@
             <ul class="dropdown-menu">
               <li>
                 <!-- Using "icon-spin" class to rotate icon. -->
-                <p><span class="label label-info"><i class="icon-cloud"></i></span> Syncing Members Lists to Server</p>
+                <p><span class="label label-info"><i class="icon-refresh icon-spin"></i></span> Syncing Members Lists to Server</p>
                 <hr />
-                <p><span class="label label-warning"><i class="icon-cloud"></i></span> Syncing Bookmarks Lists to Cloud</p>
+                <p><span class="label label-warning"><i class="icon-refresh icon-spin"></i></span> Syncing Bookmarks Lists to Cloud</p>
 
                 <hr />
 
@@ -163,7 +199,7 @@
           <!-- Logo. -->
           <div class="logo">
             <h1><a href="#">EV<span class="bold">Center</span></a></h1>
-            <p class="meta">consolidating your operation</p>
+            <p class="meta">consolidating your operations</p>
           </div>
           <!-- Logo ends -->
         </div>
@@ -375,7 +411,7 @@
     <!-- Sidebar ends -->
 
   	<!-- Main bar -->
-  	<div class="mainbar">
+    <div class="mainbar">
 
       <!-- Page heading -->
       <div class="page-head">
@@ -395,17 +431,18 @@
       <!-- Page heading ends -->
 
 
-	    <!-- Matter -->
+      <!-- Matter -->
 
-	    <div class="matter">
-        <div class="container">
+      <div class="matter">
+        <div class="padded">
             [% content %]
         </div>
-		</div>
+    </div>
 
-		<!-- Matter ends -->
+    <!-- Matter ends -->
 
     </div>
+
 
    <!-- Mainbar ends -->	    	
    <div class="clearfix"></div>
@@ -419,7 +456,7 @@
     <div class="row">
       <div class="col-md-12">
             <!-- Copyright info -->
-            <p class="copy">Copyright &copy; 2013 | <a href="#">Zabster</a> </p>
+            <p class="copy">Copyright &copy; 2014 | <a href="#">EVCenter</a> </p>
       </div>
     </div>
   </div>
@@ -430,36 +467,6 @@
 <!-- Scroll to top -->
 <span class="totop"><a href="#"><i class="icon-chevron-up"></i></a></span> 
 
-<!-- JS -->
-<script src="[% c.uri_for('/static/js/jquery.js') %]"></script> <!-- jQuery -->
-<script src="[% c.uri_for('/static/js/bootstrap.js') %]"></script> <!-- Bootstrap -->
-<script src="[% c.uri_for('/static/js/jquery-ui-1.9.2.custom.min.js') %]"></script> <!-- jQuery UI -->
-<script src="[% c.uri_for('/static/js/fullcalendar.min.js') %]"></script> <!-- Full Google Calendar - Calendar -->
-<script src="[% c.uri_for('/static/js/jquery.rateit.min.js') %]"></script> <!-- RateIt - Star rating -->
-<script src="[% c.uri_for('/static/js/jquery.prettyPhoto.js') %]"></script> <!-- prettyPhoto -->
-
-<!-- jQuery Flot -->
-<script src="[% c.uri_for('/static/js/excanvas.min.js') %]"></script>
-<script src="[% c.uri_for('/static/js/jquery.flot.js') %]"></script>
-<script src="[% c.uri_for('/static/js/jquery.flot.resize.js') %]"></script>
-<script src="[% c.uri_for('/static/js/jquery.flot.pie.js') %]"></script>
-<script src="[% c.uri_for('/static/js/jquery.flot.stack.js') %]"></script>
-
-<!-- jQuery Notification - Noty -->
-<script src="[% c.uri_for('/static/js/jquery.noty.js') %]"></script> <!-- jQuery Notify -->
-<script src="[% c.uri_for('/static/js/themes/default.js') %]"></script> <!-- jQuery Notify -->
-<script src="[% c.uri_for('/static/js/layouts/bottom.js') %]"></script> <!-- jQuery Notify -->
-<script src="[% c.uri_for('/static/js/layouts/topRight.js') %]"></script> <!-- jQuery Notify -->
-<script src="[% c.uri_for('/static/js/layouts/top.js') %]"></script> <!-- jQuery Notify -->
-<!-- jQuery Notification ends -->
-
-<script src="[% c.uri_for('/static/js/sparklines.js') %]"></script> <!-- Sparklines -->
-<script src="[% c.uri_for('/static/js/jquery.cleditor.min.js') %]"></script> <!-- CLEditor -->
-<script src="[% c.uri_for('/static/js/bootstrap-datetimepicker.min.js') %]"></script> <!-- Date picker -->
-<script src="[% c.uri_for('/static/js/bootstrap-switch.min.js') %]"></script> <!-- Bootstrap Toggle -->
-<script src="[% c.uri_for('/static/js/filter.js') %]"></script> <!-- Filter for support page -->
-<script src="[% c.uri_for('/static/js/custom.js') %]"></script> <!-- Custom codes -->
-<script src="[% c.uri_for('/static/js/charts.js') %]"></script> <!-- Charts & Graphs -->
 
 </body>
 </html>

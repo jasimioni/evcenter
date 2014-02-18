@@ -27,8 +27,10 @@
   <link rel="stylesheet" href="style/bootstrap-datetimepicker.min.css">
   <!-- CLEditor -->
   <link rel="stylesheet" href="style/jquery.cleditor.css"> 
+  <!-- Uniform -->
+  <link rel="stylesheet" href="style/uniform.default.css"> 
   <!-- Bootstrap toggle -->
-  <link rel="stylesheet" href="style/bootstrap-switch.css">
+  <link rel="stylesheet" href="style/bootstrap-toggle-buttons.css">
   <!-- Main stylesheet -->
   <link href="style/style.css" rel="stylesheet">
   <!-- Widgets stylesheet -->
@@ -108,9 +110,9 @@
             <ul class="dropdown-menu">
               <li>
                 <!-- Using "icon-spin" class to rotate icon. -->
-                <p><span class="label label-info"><i class="icon-cloud"></i></span> Syncing Members Lists to Server</p>
+                <p><span class="label label-info"><i class="icon-refresh icon-spin"></i></span> Syncing Members Lists to Server</p>
                 <hr />
-                <p><span class="label label-warning"><i class="icon-cloud"></i></span> Syncing Bookmarks Lists to Cloud</p>
+                <p><span class="label label-warning"><i class="icon-refresh icon-spin"></i></span> Syncing Bookmarks Lists to Cloud</p>
 
                 <hr />
 
@@ -454,29 +456,21 @@
                     <hr />
 
                     <h5>Toggle Button</h5>
-                     <div class="make-switch" data-on="primary" data-off="info">
-                         <input type="checkbox" checked>
-                     </div>
-                      
-                     <div class="make-switch" data-on="info" data-off="success">
-                         <input type="checkbox" checked>
-                     </div>
-                      
-                     <div class="make-switch" data-on="success" data-off="warning">
-                         <input type="checkbox" checked>
-                     </div>
-                      
-                     <div class="make-switch" data-on="warning" data-off="danger">
-                         <input type="checkbox" checked>
-                     </div>
-                      
-                     <div class="make-switch" data-on="danger" data-off="default">
-                         <input type="checkbox" checked>
-                     </div>
-                      
-                     <div class="make-switch" data-on="default" data-off="primary">
-                         <input type="checkbox" checked>
-                     </div>  
+                    <div class="toggle-button">
+                        <input id="toogle-checkbox" type="checkbox" value="value1" checked="checked">
+                    </div>
+
+                    <div class="warning-toggle-button">
+                        <input id="toogle-checkbox" type="checkbox" value="value1" checked="checked">
+                    </div>  
+
+                    <div class="info-toggle-button">
+                        <input id="toogle-checkbox" type="checkbox" value="value1" checked="checked">
+                    </div>
+
+                    <div class="success-toggle-button">
+                        <input id="toogle-checkbox" type="checkbox" value="value1" checked="checked">
+                    </div>     
                     <hr />                                  
 
                     <h5>Button Dropdown</h5>
@@ -716,24 +710,22 @@
                     <hr />
 
                     <h5>Datepicker</h5>
-                      
-					
-					
-					 <div id="datetimepicker1" class="input-append">
-                        <input data-format="yyyy-MM-dd" type="text" class="form-control dtpicker">
+                      <div id="datetimepicker1" class="input-append">
+                        <input data-format="yyyy-MM-dd" class="picker" type="text">
                         <span class="add-on">
-                          <i data-time-icon="icon-time" data-date-icon="icon-calendar" class="btn btn-info btn-lg"></i>
+                          &nbsp;<i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                          </i>
                         </span>
                       </div>
-					
 
                     <hr />  
 
                     <h5>Timepicker</h5>
                       <div id="datetimepicker2" class="input-append">
-                        <input data-format="hh:mm:ss" class="form-control dtpicker" type="text">
+                        <input data-format="hh:mm:ss" class="picker" type="text">
                         <span class="add-on">
-                          <i data-time-icon="icon-time" data-date-icon="icon-calendar" class="btn btn-info btn-lg"></i>
+                          &nbsp;<i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                          </i>
                         </span>
                       </div>
 
@@ -805,7 +797,8 @@
 <script src="js/sparklines.js"></script> <!-- Sparklines -->
 <script src="js/jquery.cleditor.min.js"></script> <!-- CLEditor -->
 <script src="js/bootstrap-datetimepicker.min.js"></script> <!-- Date picker -->
-<script src="js/bootstrap-switch.min.js"></script> <!-- Bootstrap Toggle -->
+<script src="js/jquery.uniform.min.js"></script> <!-- jQuery Uniform -->
+<script src="js/jquery.toggle.buttons.js"></script> <!-- Bootstrap Toggle -->
 <script src="js/filter.js"></script> <!-- Filter for support page -->
 <script src="js/custom.js"></script> <!-- Custom codes -->
 <script src="js/charts.js"></script> <!-- Charts & Graphs -->

@@ -88,7 +88,7 @@ sub get_events {
         my $rows = $sth->fetchall_arrayref({});
         $sth->finish;
 
-        return $rows;
+        return $rows, $sth->{NAME};
     } catch {
         $self->errstr($_);
         return undef;
