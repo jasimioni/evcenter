@@ -28,8 +28,18 @@ O retorno de todos os métodos é um hashref com 'result' e 'error'
 sub add {
 	my ( $self, $c, $params ) = @_;
 
-	use Data::Dumper;
-	$c->log->debug(Dumper $params);
+	my $new_events;
+
+	if (ref $params eq 'ARRAY') {
+		$new_events = $params;
+	} elsif (ref $params eq 'HASH') {
+		$new_events = [ $params ];
+	} else {
+		return { error => { 
+					code => -32602, 
+					message => 'Invalid method parameter(s). Must provide a hashref or an arrayref of hashrefs'}
+				};
+	}
 
 	return { result => 'Events Added' };
 }
