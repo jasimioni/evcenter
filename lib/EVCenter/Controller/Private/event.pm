@@ -37,11 +37,19 @@ sub add {
 	} else {
 		return { error => { 
 					code => -32602, 
-					message => 'Invalid method parameter(s). Must provide a hashref or an arrayref of hashrefs'}
-				};
+					message => 'Invalid method parameter(s). Must provide a hashref or an arrayref of hashrefs'
+				} };
 	}
 
-	return { result => 'Events Added' };
+	my $rows = $c->model('Event')->add_events($new_events);	
+	if (defined $rows) {
+		return { result => "$rows new events added" };
+	} else {
+		return { error => {
+					code => 10000,
+					message => 'Failed to add events: ' . $c->model('Event')->errstr,
+				} };
+	}
 }
 
 

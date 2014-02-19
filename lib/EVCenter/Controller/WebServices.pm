@@ -27,9 +27,6 @@ sub default :Path :Args() {
     $c->stash(current_view => 'JSON');
     my $jsonrpc = $c->req->body_data;
 
-    use Data::Dumper;
-    print Dumper $jsonrpc;
-
     my $jsonrpc_output = {};
 
     my $method = $jsonrpc->{method};

@@ -40,12 +40,12 @@ sub add_events {
     my $self = shift;
     $self->errstr('');
 
-    my @events = @_;
+    my $events = shift;
 
     try {
         my $rows = $self->conn->txn(fixup => sub {
                 my $rows = 0;
-                foreach my $event (@events) {
+                foreach my $event (@$events) {
                     my ($query, @params) = $self->sqla->insert('active_events', $event);
                     $_->do($query, {}, @params);
                     $rows++;
