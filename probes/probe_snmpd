@@ -1,0 +1,324 @@
+#!/usr/bin/perl
+
+=encoding utf8
+
+=head1 NAME
+
+probe_snmp
+
+=head1 SYNOPSIS
+
+    probe_snmpd [ -config conf_file ] [ -daemon ] [ -loglevel LEVEL ] [ -stdout ] [ -force ] [ -h ]
+
+    -config   - Read Configuration from conf_file
+    -daemon   - Runs process in background
+    -loglevel - set to one of: FATAL, ERROR, WARN, INFO, DEBUG
+    -stdout   - Log messages to STDOUT instead of log file
+    -h        - Prints this help
+
+For additional information, run: perldoc probe_snmpd
+
+=head1 DESCRIPTION
+
+This is an SNMPv1 and SNMPv2 probe to be used with the EVCenter Solution. It will
+listen the specified UDP port for new SNMP Messages, decode them and send them to
+the EVCenter Core, using the EVCenter::Probe::Dispatcher class.
+
+This probe is based on AnyEvent, so all processing is unblocking. It enters an
+Event Loop in the end of the program and keeps waiting for the watchers to activate.
+
+=head1 WATCHERS
+
+3 watchers are created:
+
+=head2 Socket (AnyEvent->io)
+
+This watcher will be waken up on every UDP Datagram that is received. 
+
+=head2 Timed Event Dispatch
+
+Every N seconds (defined in configuration file) the events received so far are dispatched.
+
+=head2 Timed Housekeeper
+
+Every N seconds (defined in configuration file) the housekeeper is activated to delete older
+files.
+
+=head1 CONFIGURATION FILE
+
+The configuration file is stored in cfg/probe_snmpd.conf. It contains all available options
+with a brief description of it's meaning and the defaults.
+
+=cut
+
+#### MODULE LOADING ####
+BEGIN {
+	eval "use EV"; # Use EV if Available to make AnyEvent Better
+}
+
+use common::sense;
+use AnyEvent; BEGIN { AnyEvent::common_sense }
+use IO::Socket;
+use Scalar::Util ();
+use Time::HiRes qw/tv_interval gettimeofday usleep/;
+use Data::Dumper;
+use Try::Tiny;
+use Config::Any;
+use Getopt::Long;
+use Config::General;
+use Log::Log4perl qw/get_logger/;
+use Net::Server::Daemonize qw(daemonize is_root_user);
+use Sys::Hostname;
+use Pod::Usage;
+
+use FindBin;
+use File::Spec::Functions;
+use lib catfile($FindBin::RealBin, 'lib');
+
+use EVCenter::Probe::SNMPParser;
+use EVCenter::Probe::Dispatcher;
+use EVCenter::Probe::Functions;
+
+my $hostname = hostname;
+
+#### CONFIGURATION ####
+my $configuration_file = catfile($FindBin::RealBin, 'cfg', $FindBin::Script . '.conf');
+my ($daemonize, $loglevel, $stdout, $force, $help);
+GetOptions('-config=s'   => \$configuration_file,
+		   '-daemon'	 => \$daemonize,
+		   '-loglevel=s' => \$loglevel,
+		   '-stdout'     => \$stdout,
+		   '-force'      => \$force,
+           '-h'          => \$help) || pod2usage({ -verbose => 1, -exitval => 2 });
+
+pod2usage({ -verbose => 1, -exitval => 0 }) if ($help);
+
+# Defaults
+my $defaults = {
+	listen 				         => '0.0.0.0:10162',
+	max_events_per_request       => 100,
+	max_time_between_requests    => 1,
+	max_packet_size			     => 65467,
+	logfile 				     => is_root_user ?
+									  catfile('/var/log', $FindBin::Script . '.log') :
+									  catfile($FindBin::RealBin, 'var', 'log', $FindBin::Script . '.log'),
+	pidfile					     => is_root_user ?
+								  	  catfile('/var/run', $FindBin::Script, '.pid') :
+									  catfile($FindBin::RealBin, 'var', $FindBin::Script . '.pid'),
+	loglevel				     => 'INFO',
+    max_log_files                => 7,
+	store_directory 		     => catfile($FindBin::RealBin, 'var', 'saf'),
+	webservice_url			     => 'http://localhost:3000/WebServices',
+	webservice_user 		     => 'probe',
+	webservice_pass 		     => 'snmp',
+	webservice_timeout 		     => 15,
+	max_jobs					 => 20,
+	probe_id				     => $FindBin::Script,
+	probe_type				     => 'SNMPd',
+	housekeeper_frequency	     => 60,
+	housekeeper_keep_processed 	 => 3600,
+	housekeeper_keep_unprocessed => 10800,
+	housekeeper_retry_delay      => 30,
+	queue_expire				 => 10800,
+};
+
+# Reading config from File
+my $config = Config::General->new(-ConfigFile    		 => $configuration_file,
+								  -DefaultConfig 		 => $defaults,
+								  -MergeDuplicateOptions => 1);
+
+my %config = $config->getall;
+$config{loglevel} = $loglevel if ($loglevel);
+if ($stdout) {
+	delete $config{logfile};
+	$daemonize = 0;
+}
+
+#### LOGGING ####
+EVCenter::Probe::Functions->init_logger(%config);
+my $log = get_logger;
+
+#### OPEN SOCKET ####
+$log->info("Probe SNMPd Starting with PID $$");
+
+my $server = IO::Socket::INET->new(
+    LocalAddr => $config{listen},
+    Proto     => 'udp',
+    Blocking  => 0
+);
+
+if (! $server) {
+	$log->fatal("Socket could not be created: $!");
+	die "Socket could not be created: $!";
+}
+
+#### DAEMONIZE ####
+if ($daemonize) {
+	my $uid = $<;
+	my $gid = $(;
+
+	if (is_root_user) {
+		$uid = $config{user}  if defined $config{user};
+		$gid = $config{group} if defined $config{group};
+	}
+
+	$log->info("Daemonizing with user $uid and gid $gid - pidfile is ", $config{pidfile});
+	try {
+		daemonize($uid, $gid, $config{pidfile});
+	} catch {
+		$log->fatal("Failed to daemonize: $_");
+		die("$_\n");
+	};
+}
+
+#### SERVER CODE ####
+#### Initialization
+my $cv = AnyEvent->condvar;
+my ($snmpparser, $dispatcher);
+try {
+	$snmpparser = EVCenter::Probe::SNMPParser->new;
+	$dispatcher = EVCenter::Probe::Dispatcher->new(url       => $config{webservice_url},  timeout      => $config{webservice_timeout},
+												   username  => $config{webservice_user}, password 	   => $config{webservice_pass},
+												   directory => $config{store_directory}, probe_id 	   => $config{probe_id},
+												   max_jobs  => $config{max_jobs}, 		  queue_expire => $config{queue_expire});
+} catch {
+	$log->logdie("Failed to create base objects: $_");
+};
+
+#### Process Unprocessed Saved Files
+$dispatcher->storer->delete_unprocessed($config{housekeeper_keep_unprocessed});
+while (my ($store_file, $id, $events, $error) = $dispatcher->storer->get_unprocessed_file) {
+	if (defined $error) {
+		if ($force) {
+			$log->error("Found an error processing store file - $error - but going on because of force parameter");
+		} else {
+			$log->logdie("Found an error processing store file - $error - stopping");
+		}
+	}
+	if (@$events) {
+		$log->info("Processing stored file: $store_file");
+		$dispatcher->enqueue(id => $id, events => $events);
+	} else {
+		$log->info("No events found in file: $store_file");
+		$dispatcher->storer->set_to_done($id);
+	}
+}
+
+#### Trap Listener
+#my $t0 = [gettimeofday];
+#my $c  = 0;
+my @traps;
+my $trap_watcher = AnyEvent->io(
+	fh   => $server,
+	poll => 'r',
+	cb   => sub {
+		try {
+			my $datagram;
+			my $remote_addr = $server->recv($datagram, $config{max_packet_size}) or die 'Invalid packet received from socket';
+
+#			if (! ($c % 500)) {
+#				my $elapsed = tv_interval ( $t0 );
+#				$t0 = [gettimeofday];
+#				$log->error(sprintf("=================> processed 500 events (total $c) in %f time - %f events / second", $elapsed, 500/$elapsed));
+#			}
+#			$c++;
+
+
+			my ($port, $iaddr) = sockaddr_in($remote_addr);
+			my $herstraddr = inet_ntoa($iaddr);
+
+			$log->info("Received new datagram from: ", $herstraddr);
+
+			my $trap = $snmpparser->decode($datagram) or die 'Failed to decode trap: ' . $snmpparser->error;
+			$trap->{source_address} = $herstraddr;
+
+			$trap->{probe_type} 	= $config{probe_type}; 
+			$trap->{probe_id}   	= $config{probe_id};
+			$trap->{probe_hostname} = $hostname;
+			$trap->{timestamp}  	= Time::HiRes::time;
+
+			$log->debug(sub { Dumper $trap }); # To avoid running dumper if not logging, encapsulate on sub
+
+			if ($trap->{pdu_type} == 6) {
+				$log->info('Datagram is a inform_request - replying it');
+				$snmpparser->inform_reply({ socket => $server, inform_request => $trap, remote_addr => $remote_addr })
+					or $log->error('Failed to reply to inform request: ', $snmpparser->error);
+			}
+
+			$dispatcher->storer->store($trap);			
+			$log->info('Trap saved on disk');
+
+			push @traps, $trap;
+			if (@traps >= $config{max_events_per_request}) {
+				$log->info('Reached maximum event count per request - dispatching');	
+				$dispatcher->enqueue(events => [ @traps ]);
+				$dispatcher->storer->set_new_file;
+				@traps = ();
+			}
+		} catch {
+			$log->error($_);
+		};
+	},
+);
+
+#### Dispatch when time between requests has been reached
+my $dispatch_events = AnyEvent->timer(
+	after 	 => $config{max_time_between_requests},
+	interval => $config{max_time_between_requests},
+	cb => sub {
+		try {
+			if (@traps) {
+				$log->info('Reached maximum time between requests - dispatching');
+				$dispatcher->enqueue(events => [ @traps ]);
+				$dispatcher->storer->set_new_file;
+				@traps = ();
+			}
+		} catch {
+			$log->error($_);
+		};
+	},
+);
+
+#### HOUSEKEEPER ####
+## TODO: Must Check Queue Size
+## 		 In case there are too old objects, they should be dropped and their
+##		 stored objects set to failed.
+my $housekeeper_watcher = AnyEvent->timer(
+	after 	 => $config{housekeeper_frequency},
+	interval => $config{housekeeper_frequency},
+	cb => sub {
+		$log->info('Housekeeper Started');
+		$log->info('Queue has: ', join(', ', sort keys %{$dispatcher->queue}));
+		$dispatcher->storer->delete_processed($config{housekeeper_keep_processed});
+		$dispatcher->storer->delete_unprocessed($config{housekeeper_keep_unprocessed});
+	},
+);
+
+#### SIGNAL HANDLERS ####
+$SIG{TERM} = sub { $log->fatal("Probe is shutting down - killed - PID $$"); exit; };
+$SIG{INT}  = sub { $log->fatal("Probe is shutting down - interrupted - PID $$"); exit; };
+
+$log->info('Initialization completed - waiting for new events => using ', $AnyEvent::MODEL);
+say $cv->recv;
+
+=head1 SEE ALSO
+
+The code below was used as a reference to write this one.
+
+B<Sample Code for UDP Server With AnyEvent>
+
+    https://github.com/iizukanao/AnyEvent-UDPServer/blob/master/lib/AnyEvent/UDPServer.pm
+
+=head1 AUTHOR
+
+Joao Andre Simioni <jasimioni@gmail.com>
+
+=head1 TODO
+
+Make housekeeper a class, more elaborated. Also, housekeeper must handle the log file.
+
+=head1 LICENSE
+
+TBD
+
+=cut

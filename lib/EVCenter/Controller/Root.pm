@@ -30,7 +30,20 @@ The root page (/)
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
+    use Data::Dumper;
 
+    $c->stash(current_view => 'HTMLNW');
+    my $sessionid = $c->req->param('sessionid');
+    my $name      = $c->req->param('name');
+
+    $c->stash('_session' => { id => $sessionid }) if (defined $sessionid);
+
+    $c->session;
+    $c->session(session_name => $name) if defined $name;
+
+    $c->stash(session_name => $c->session->{session_name});
+    
+    $c->log->debug($c->sessionid);
     # Hello World
 }
 

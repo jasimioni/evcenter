@@ -22,6 +22,12 @@ use Catalyst qw/
     JSONRPC
     ConfigLoader
 
+    Authentication
+
+    Session Session::State::Cookie
+    Session Session::State::Stash
+    Session Session::Store::File
+
     SmartURI
 
     Unicode
@@ -51,8 +57,36 @@ __PACKAGE__->config(
     },
     default_view => 'HTML',
     case_sensitive => 1,
+    'Plugin::Authentication' =>
+            {
+                default => {
+                    credential => {
+                        class => 'Password',
+                        password_field => 'password',
+                        password_type => 'clear'
+                    },
+                    store => {
+                        class => 'Minimal',
+                        users => {
+                            probe => {
+                                password => "snmp",
+                                editor => 'yes',
+                                roles => [qw/edit delete/],
+                            },
+                            william => {
+                                password => "s3cr3t",
+                                roles => [qw/comment/],
+                            }
+                        }
+                    }
+                }
+            },
+    'Plugin::Session' => 
+            {
+                storage => '/tmp/session',
+                expires => 3600,
+            },
 );
-
 # Start the application
 __PACKAGE__->setup();
 

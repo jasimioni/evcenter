@@ -36,6 +36,24 @@ sub _build_conn {
     return $conn;
 }
 
+sub check_db {
+    my $self = shift;
+
+    my $query = 'SELECT COUNT(*) FROM active_events';
+    try {
+        my $sth = $self->conn->run(fixup => sub {
+                my $sth = $_->prepare($query);
+                $sth->execute();
+                $sth;
+        });
+        $sth->finish;
+        return 1;
+    } catch {
+        $self->errstr($_);
+        return undef;
+    };
+}
+
 sub add_events {
     my $self = shift;
     $self->errstr('');

@@ -25,7 +25,38 @@ O retorno de todos os métodos é um hashref com 'result' e 'error'
 
 =cut
 
-sub add {
+sub parse_and_add :Private {
+	# Parse event information before calling add 
+	# AKA Rules Engine
+	my ( $self, $c, $params ) = @_;
+	my $new_events;
+	if (ref $params eq 'ARRAY') {
+		$new_events = $params;
+	} elsif (ref $params eq 'HASH') {
+		$new_events = [ $params ];
+	} else {
+		return { error => { 
+					code => 'INVALID_METHOD_PARAMETER', 
+					message => 'Invalid method parameter(s). Must provide a hashref or an arrayref of hashrefs'
+				} };
+	}
+
+	my @events_to_add;
+	foreach my $event (@$new_events) {
+		my ($seq) = values %{$event->{varbinds}[0]};
+		push @events_to_add, { 
+			node => $event->{source_address}, 
+			message => 'Received event from ' . $event->{probe_id} . " SEQ: $seq", 
+			dedup_id => $event->{timestamp}, 
+			event_id => $event->{timestamp},
+			object   => $event->{timestamp},
+			type => 1, severity => 1
+		};
+	}
+	$c->forward('add', [ \@events_to_add ]);
+}
+
+sub add :Private {
 	my ( $self, $c, $params ) = @_;
 
 	my $new_events;
@@ -36,7 +67,7 @@ sub add {
 		$new_events = [ $params ];
 	} else {
 		return { error => { 
-					code => -32602, 
+					code => 'INVALID_METHOD_PARAMETER', 
 					message => 'Invalid method parameter(s). Must provide a hashref or an arrayref of hashrefs'
 				} };
 	}
@@ -46,12 +77,15 @@ sub add {
 		return { result => "$rows new events added" };
 	} else {
 		return { error => {
-					code => 10000,
+					code => 'DATABASE_ACTION_FAILURE',
 					message => 'Failed to add events: ' . $c->model('Event')->errstr,
 				} };
 	}
 }
 
+sub get {
+	
+}
 
 =encoding utf8
 
