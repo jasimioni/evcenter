@@ -147,6 +147,11 @@ my $server = IO::Socket::INET->new(
     Blocking  => 0
 );
 
+# If we have problems with buffer size (big installation)
+# we can increase UDP Buffer, to handle storms, for example.
+# $server->sockopt(SO_RCVBUF, 2**32/8-1);
+# # sysctl -w net.core.rmem_max=4294967295 (4GB Buffer is overkill)
+
 if (! $server) {
 	$log->fatal("Socket could not be created: $!");
 	die "Socket could not be created: $!";
@@ -280,9 +285,6 @@ my $dispatch_events = AnyEvent->timer(
 );
 
 #### HOUSEKEEPER ####
-## TODO: Must Check Queue Size
-## 		 In case there are too old objects, they should be dropped and their
-##		 stored objects set to failed.
 my $housekeeper_watcher = AnyEvent->timer(
 	after 	 => $config{housekeeper_frequency},
 	interval => $config{housekeeper_frequency},
