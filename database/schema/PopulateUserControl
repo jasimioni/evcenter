@@ -1,0 +1,19 @@
+drop table uc_group_roles;
+drop table uc_group_members;
+
+drop table uc_roles;
+drop table uc_users;
+drop table uc_groups;
+
+create table uc_roles (rolename text, permissions json, details json, filter text, primary key (rolename));
+create table uc_users (username text, details json, filter text, filter_type filter_type, primary key (username));
+create table uc_groups (groupname text, details json, primary key (groupname));
+
+create table uc_user_roles (rolename text not null references uc_roles on delete cascade, username text not null references uc_users, primary key (rolename, username));
+create table uc_group_roles (rolename text not null references uc_roles on delete cascade, groupname text not null references uc_groups, primary key (rolename, groupname));
+create table uc_group_members (groupname text references uc_groups(groupname) on delete cascade, member_type member_type, member_id text, primary key(groupname, member_type, member_id));
+
+INSERT INTO uc_users (username) VALUES ('jsimioni');
+INSERT INTO uc_groups (groupname) VALUES ('Company'), ('Dept1'), ('Dept2'), ('Team 1'), ('Team 2'), ('Team 3'), ('Team 4');
+INSERT INTO uc_roles (rolename, permissions, filter) VALUES ('Technology 1', 'grant: [ { \'tools\': 'rw' }, { \'webservices\': 'ro' } ]', 'technology = \'Tech1\''),
+                                                            ('Technology 2', 'revoke: [ { \'webservices\': 'rw' } ]', 'technology = \'Tech2\'');

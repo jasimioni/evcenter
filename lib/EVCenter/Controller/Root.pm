@@ -30,21 +30,8 @@ The root page (/)
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-    use Data::Dumper;
 
-    $c->stash(current_view => 'HTMLNW');
-    my $sessionid = $c->req->param('sessionid');
-    my $name      = $c->req->param('name');
-
-    $c->stash('_session' => { id => $sessionid }) if (defined $sessionid);
-
-    $c->session;
-    $c->session(session_name => $name) if defined $name;
-
-    $c->stash(session_name => $c->session->{session_name});
-    
-    $c->log->debug($c->sessionid);
-    # Hello World
+    $c->response->redirect($c->uri_for('/GUI/EventList'));
 }
 
 =head2 default
@@ -73,32 +60,13 @@ Runs on every execution of any method
 
 =cut
 
-sub auto :Private {
+sub begin :Private {
     my ($self, $c) = @_;
 
-    $c->stash('menu' => [
-        {
-            icon   => 'icon-home',
-            name   => 'Home',
-            link   => $c->uri_for('/'),
-            active => 1,
-            id     => 'home',
-        },
-        {
-            icon   => 'icon-list-alt',
-            name   => 'Event List',
-            link   => $c->uri_for('/GUI/EventList'),
-            active => 0, 
-            id     => 'eventlist',
-            # submenu => \@appsMenu,
-        }
-    ]);
-
-    $c->stash(pagehead => { title => 'Home', icon => 'icon-home' });
-
-    return 1;
-
-    # User found, so return 1 to continue with processing after this 'auto'
+    return 1 if ($c->user_exists || 
+                 $c->req->path =~ /^WebServices/ || 
+                 $c->req->path =~ /^Auth/);
+    $c->response->redirect($c->uri_for('/Auth/login'));
 }
 
 =head1 AUTHOR

@@ -25,7 +25,6 @@ sub default :Path :Args() {
 
     $c->stash(current_view => 'JSON');
 
-    use Data::Dumper;
     my $jsonrpc = $c->req->body_data;
     $jsonrpc = {} if (ref $jsonrpc ne 'HASH');
 

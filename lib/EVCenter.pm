@@ -1,6 +1,7 @@
 package EVCenter;
 use Moose;
 use namespace::autoclean;
+use Log::Any::Adapter ('Stdout');
 
 use Catalyst::Runtime 5.80;
 
@@ -23,6 +24,7 @@ use Catalyst qw/
     ConfigLoader
 
     Authentication
+    Authorization::Roles
 
     Session Session::State::Cookie
     Session Session::State::Stash
@@ -63,21 +65,13 @@ __PACKAGE__->config(
                     credential => {
                         class => 'Password',
                         password_field => 'password',
-                        password_type => 'clear'
+                        password_type => 'hashed',
+                        password_hash_type => 'SHA-1',
                     },
                     store => {
-                        class => 'Minimal',
-                        users => {
-                            probe => {
-                                password => "snmp",
-                                editor => 'yes',
-                                roles => [qw/edit delete/],
-                            },
-                            william => {
-                                password => "s3cr3t",
-                                roles => [qw/comment/],
-                            }
-                        }
+                        class => 'DBIx::Class',
+                        user_model => 'AuthDB::UcUser',
+                        use_userdata_from_session => 0,
                     }
                 }
             },
@@ -87,8 +81,10 @@ __PACKAGE__->config(
                 expires => 3600,
             },
 );
+
 # Start the application
 __PACKAGE__->setup();
+Log::Any::Adapter->set('Catalyst', logger => __PACKAGE__->log);
 
 =encoding utf8
 

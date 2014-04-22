@@ -137,7 +137,7 @@ sub decode {
 
 	    ### Assemble decoded trap object
 	    # Common
-	    $parsed_trap{'version'} = $trap->{'version'};
+	    $parsed_trap{'version'} = $trap->{'version'} + 1;
 	    $parsed_trap{'community'} = $trap->{'community'};
 	    if ($pdutype eq 'trap') {
 	        $parsed_trap{'pdu_type'} = 4
@@ -185,7 +185,10 @@ sub decode {
 	                $oidval{$trap->{'pdu_type'}->{$pdutype}->{'varbindlist'}[$i]->{'oid'}} = ""
 	            }
 	        }
-	        push @varbinds, \%oidval
+            # Original Code - Replaced
+	        # push @varbinds, \%oidval
+            my ($key, $value) = %oidval;
+            push @varbinds, { oid => $key, value => $value };
 	    }
 	    $parsed_trap{'varbinds'} = \@varbinds;
 	    return \%parsed_trap;

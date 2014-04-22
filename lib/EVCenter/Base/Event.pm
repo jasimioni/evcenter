@@ -1,12 +1,13 @@
-#!/usr/bin/perl
-
 package EVCenter::Base::Event;
 
 use Moose;
 use Try::Tiny;
 use DBIx::Connector;
 use SQL::Abstract::More;
+use Data::Dumper;
 use namespace::clean -except => 'meta';
+use JSON::MaybeXS;
+use Log::Any qw/$log/;
 
 has 'conn'     => ( is => 'ro', isa => 'Object', lazy => 1, builder => '_build_conn' );
 has 'dbhost'   => ( is => 'rw', isa => 'Str', default => '' );
@@ -19,6 +20,7 @@ has 'dbi_opts' => ( is => 'rw', isa => 'HashRef' );
 has 'errstr'   => ( is => 'rw', isa => 'Str' );
 has 'dbfields' => ( is => 'rw', isa => 'HashRef' );
 has 'sqla'     => ( is => 'ro', isa => 'Object', default => sub { SQL::Abstract::More->new() } );
+has 'fields'   => ( is => 'ro', isa => 'ArrayRef', builder => '_build_fields' );
 
 sub _build_conn {
     my $self = shift;
@@ -36,6 +38,19 @@ sub _build_conn {
     return $conn;
 }
 
+sub _build_fields {
+    my $self = shift;
+    my $query = 'SELECT * FROM active_events WHERE 1 = 0';
+    my $sth = $self->conn->run(fixup => sub {
+            my $sth = $_->prepare($query);
+            $sth->execute();
+            $sth;
+    });
+    my $columns = $sth->{NAME};
+    $sth->finish;
+    return $columns;
+}
+
 sub check_db {
     my $self = shift;
 
@@ -47,6 +62,7 @@ sub check_db {
                 $sth;
         });
         $sth->finish;
+        $self->_build_fields;
         return 1;
     } catch {
         $self->errstr($_);
@@ -64,7 +80,17 @@ sub add_events {
         my $rows = $self->conn->txn(fixup => sub {
                 my $rows = 0;
                 foreach my $event (@$events) {
-                    my ($query, @params) = $self->sqla->insert('active_events', $event);
+                    my $n_event = {};
+                    foreach my $field (@{$self->fields}) {
+                        if (defined $event->{$field}) {
+                            $n_event->{$field} = ref $event->{$field} ? encode_json $event->{$field} : $event->{$field};
+                        }
+                    }
+                    $log->debug("Inserting new event");
+                    $log->debug(Dumper $event);
+                    $log->debug(Dumper $n_event);
+                    my ($query, @params) = $self->sqla->insert('active_events', $n_event);
+                    $log->debug("Query is: $query");
                     $_->do($query, {}, @params);
                     $rows++;
                 }

@@ -45,6 +45,32 @@ sub EventList :Local :Args(0) {
     $c->stash(fields => $fields, rows => $rows);
 }
 
+sub auto :Private {
+    my ($self, $c) = @_;
+
+    $c->stash('menu' => [
+        {
+            icon   => 'icon-home',
+            name   => 'Home',
+            link   => $c->uri_for('/'),
+            active => 1,
+            id     => 'home',
+        },
+        {
+            icon   => 'icon-list-alt',
+            name   => 'Event List',
+            link   => $c->uri_for('/GUI/EventList'),
+            active => 0, 
+            id     => 'eventlist',
+            # submenu => \@appsMenu,
+        }
+    ]);
+
+    $c->stash(pagehead => { title => 'Home', icon => 'icon-home' });
+
+    return 1;
+}
+
 =encoding utf8
 
 =head1 AUTHOR

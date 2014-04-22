@@ -22,10 +22,13 @@ requires 'Config::General'; # This should reflect the config file format you've 
 requires 'Catalyst::Plugin::SmartURI';
 requires 'Catalyst::Plugin::Unicode';
 requires 'Catalyst::View::TT';
-
+requires 'Catalyst::Authentication::Store::DBIx::Class';
 
 requires 'DBIx::Connector';
 requires 'SQL::Abstract::More';
+requires 'Log::Any::Adapter::Catalyst';
+requires 'Module::Pluggable::Object';
+requires 'JSON::MaybeXS';
 
 test_requires 'Test::More' => '0.88';
 catalyst;

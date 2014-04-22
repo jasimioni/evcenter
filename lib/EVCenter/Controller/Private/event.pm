@@ -44,14 +44,7 @@ sub parse_and_add :Private {
 	my @events_to_add;
 	foreach my $event (@$new_events) {
 		my ($seq) = values %{$event->{varbinds}[0]};
-		push @events_to_add, { 
-			node => $event->{source_address}, 
-			message => 'Received event from ' . $event->{probe_id} . " SEQ: $seq", 
-			dedup_id => $event->{timestamp}, 
-			event_id => $event->{timestamp},
-			object   => $event->{timestamp},
-			type => 1, severity => 1
-		};
+		push @events_to_add, $c->model('Processor')->process_event($event);
 	}
 	$c->forward('add', [ \@events_to_add ]);
 }
