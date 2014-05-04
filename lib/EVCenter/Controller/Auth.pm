@@ -58,8 +58,11 @@ sub logout :Local :Args(0) {
 sub calculate_permissions :Private {
     my ( $self, $c ) = @_;
 
-    $c->session->{sql_filter} = $c->model('ACL')->get_filter($c->user->id);
-    $c->session->{permission} = $c->model('ACL')->get_permissions($c->user->id);
+    $c->session->{srf} = $c->model('ACL')->get_filter($c->user->id);        # SQL Restriction Filter
+    $c->session->{acl} = $c->model('ACL')->get_permissions($c->user->id);   # Access Control List
+
+    use Data::Dumper;
+    $c->log->debug("SQL Restriction Filter: " . Dumper $c->session->{srf});
 }
 
 =encoding utf8

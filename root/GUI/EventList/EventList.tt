@@ -1,31 +1,179 @@
-<table id='el'></table>
+<style type='text/css'>
+  .evc-row-critical         { background: #FF0000; color: white; }
+  .evc-row-major            { background: #FFA319; }
+  .evc-row-minor            { background: #FFFF00; }
+  .evc-row-warning          { background: #00FFFF; }
+  .evc-row-undetermined     { background: #800080; color: white; }
+  .evc-row-clear            { background: #008000; color: white; }
+  .evc-row-critical-ack     { background: #800000; color: white; }
+  .evc-row-major-ack        { background: #CC6600; color: white; }
+  .evc-row-minor-ack        { background: #C0C000; }
+  .evc-row-warning-ack      { background: #008080; }
+  .evc-row-undetermined-ack { background: #600060; color: white; }
+  .evc-row-clear-ack        { background: #006000; color: white; }
+  
+  .evc-btn-bot-filter   { width: 70px; margin-left: 30px; }
+
+  .ui-jqgrid-titlebar-close { margin-right: 5px !important; }
+
+  .h-separator { width: 100px; padding-left: 100px; }
+
+  #el { font-size: 12px; }
+
+  #tb_el {
+      padding-top: 3px;
+      height: 38px;
+      text-align: center;
+      font-size: 12px;
+  }
+
+  #t_el {
+      padding-top: 3px;
+      height: 33px;
+      text-align: center;
+      font-size: 12px;
+  }
+
+</style>
+
+<div id="grid_container">
+    <table id="el"></table>
+    <div id="pager"></div>
+</div>
 
 <script>
   $(document).ready(function() {
+
+    var SeverityClass = { 0: 'evc-row-clear', 1: 'evc-row-undetermined', 2: 'evc-row-warning', 3: 'evc-row-minor', 4: 'evc-row-major', 5: 'evc-row-critical' };
+    var scrollPosition;
     var vColModel = [];
-    [% FOR header IN fields %]
+    var rowinfo;
+    var rowclass;
+    var rows;
+    var ctrlrows;
+    var colNames = [];
+    var bottomFilterSelected = 'all';
+    [% FOR header IN columns %]
       vColModel.push({ name: '[% header %]', index: '[% header %]', width: 150 });
+      colNames.push('[% header %]');
     [% END %]
 
-    cHeight = $(window).height() - $('#el').offset().top - 60 - 31;
+    function colorize_rows(ctrlrows) {
+      for (i = 0; i < ctrlrows.length; i++) {
+        rowinfo = ctrlrows[i];
+        rowclass = SeverityClass[rowinfo.severity];
+        if (rowinfo.ack > 0) {
+          rowclass += '-ack';
+        }
+        $('#' + rowinfo.serial).addClass(rowclass);
+      }
+    }
 
-    $('#el').jqGrid({        
-      datatype: "local",
-      height: cHeight,
-      colNames: [
-          '[% fields.join("', '") %]'
-      ],
-      colModel: vColModel,
+    function update_severity_filters(data) {
+      $('#evc-btn-bot-clear').html(data.sevcount.clear);
+      $('#evc-btn-bot-undetermined').html(data.sevcount.undetermined);
+      $('#evc-btn-bot-warning').html(data.sevcount.warning);
+      $('#evc-btn-bot-minor').html(data.sevcount.minor);
+      $('#evc-btn-bot-major').html(data.sevcount.major);
+      $('#evc-btn-bot-critical').html(data.sevcount.critical);
+      $('#evc-btn-bot-all').html('All: ' + data.records);
+
+    }
+
+    var handleMultiSelect  = function() {};
+    var beforeProcessingFn = function(data) {};
+    var gridCompleteFn     = function() {
+      $("#el").closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition);
+    };
+    var loadCompleteFn     = function(data) { 
+      colorize_rows(data.ctrlrows);
+      if (bottomFilterSelected != 'all') {
+        $('tr.jqgrow').hide();
+        $('tr.evc-row-' + bottomFilterSelected).show();
+        $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
+      }
+      update_severity_filters(data);
+    };
+
+    $("#el").jqGrid({
+      url: '[% c.uri_for('RetrieveEvents') %]',
+      datatype: 'json',
+      mtype: 'POST',
+      postData: { limit: 250 },
+      colNames: colNames,
+      colModel : vColModel,
+      pager: '#pager',
+      rowNum: 0,
+      rowList:[],
+      pgbuttons: false,
+      pgtext: null,
+      viewrecords: true,
+      sortname: 'serial',
+      sortorder: 'desc',
+      gridview: true,
+      caption: 'Event List',
       autowidth: true,
-      caption: "Event List"
+      multiselect: true,
+      toolbar: [ true, "both" ],
+      height: $(window).height() - 153 - $('#grid_container').offset().top,
+      autoencode: true,
+      beforeSelectRow: handleMultiSelect,
+      beforeProcessing: beforeProcessingFn,
+      gridComplete: gridCompleteFn,
+      loadComplete: loadCompleteFn,
     });
 
-    [% FOR row IN rows %]
-      var event_data = {};        
-      [% FOR header IN fields %]
-        event_data['[% header %]'] = '[% row.$header %]';
-      [% END %]
-      $('#el').jqGrid('addRowData', event_data['serial'], event_data);
-    [% END %]
+    $('#el').navGrid('#pager', { edit:false, view:false, add:false, del:false, search:false,
+                                 beforeRefresh: function() { scrollPosition = $('#el').closest(".ui-jqgrid-bdiv").scrollTop(); },
+                                 afterRefresh:  function() { $('#el').closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition); } 
+                               }, { id: 'myedit' });
+
+    // Top Combos (Filter / View) + Quick Filters
+    filtersOptions = '<option>Filtro</option>';
+    viewsOptions   = '<option>View</option>';
+    $('#t_el').html('<strong>Filtro: </strong><select id="ahs-filter-sel">' + filtersOptions +
+            '</select><span class="h-separator"> </span><strong>View: </strong><select id="ahs-view-sel">' + viewsOptions +
+            '</select><span class="h-separator"> </span><strong>Acked: </strong><input id="ahs-show-acked" type="checkbox" checked=true>&nbsp;&nbsp;&nbsp;&nbsp;' +
+            '<strong>Unacked: </strong><input id="ahs-show-unacked" type="checkbox" checked=true>&nbsp;&nbsp;&nbsp;&nbsp;' +
+            '<strong>Suprimido: </strong><input id="ahs-show-suppressed" type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;' +
+            '<strong>Não suprimido: </strong><input id="ahs-show-not-suppressed" type="checkbox" checked=true>'
+            );
+
+    // Bottom filters (Severity)
+    $("#tb_el").html(
+        '<button id="evc-btn-bot-clear" class="btn evc-btn-bot-filter evc-row-clear"></button> ' +
+        '<button id="evc-btn-bot-undetermined" class="btn evc-btn-bot-filter evc-row-undetermined"></button> ' +
+        '<button id="evc-btn-bot-warning" class="btn evc-btn-bot-filter evc-row-warning"></button> ' +
+        '<button id="evc-btn-bot-minor" class="btn evc-btn-bot-filter evc-row-minor"></button> ' +
+        '<button id="evc-btn-bot-major" class="btn evc-btn-bot-filter evc-row-major"></button> ' +
+        '<button id="evc-btn-bot-critical" class="btn evc-btn-bot-filter evc-row-critical"></button> ' +
+        '<button id="evc-btn-bot-all" class="btn evc-btn-bot-filter evc-row-all"></button> '
+    );
+    
+    $('.evc-btn-bot-filter').click(function() {
+      bottomFilterSelected = $(this).attr('id').replace(/evc-btn-bot-/, '');
+      if (bottomFilterSelected == 'all') {
+        $('tr.jqgrow').show();
+      } else {
+        $('tr.jqgrow').hide();
+        $('tr.evc-row-' + bottomFilterSelected).show();
+        $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
+      }
+    });
+
+    // Replace top right button to 'New Window' button
+    $('.ui-jqgrid-titlebar-close > span').removeClass('ui-icon-circle-triangle-n').addClass('ui-icon-newwin');
+    $('.ui-jqgrid-titlebar-close').off('click').click(function(ev) {
+      window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]', '_blank');
+    });
+
+    // Fix Grid Size on Resize
+    $(window).bind('resize', function() {
+      $('#el').setGridWidth($('#grid_container').width(), true);
+      $('#el').setGridHeight($(window).height() - 153 - $('#grid_container').offset().top);
+    }).trigger('resize');
+
+
+
   });
 </script>

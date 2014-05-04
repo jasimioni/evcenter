@@ -8,7 +8,7 @@ my $url    = 'http://localhost:3000/WebServices';
 
 my $callobj = {
 	method  => 'auth',
-	params  => { username => 'probe', password => 'snmpd' }, 
+	params  => { username => 'jsimioni', password => 'oss' }, 
 	jsonrpc => '2.0',
 	id 	=> 'Insert Event Test',
 };

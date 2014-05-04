@@ -23,16 +23,15 @@ use Catalyst qw/
     JSONRPC
     ConfigLoader
 
+    Session
+    Session::State::Cookie
+    Session::State::Stash
+    Session::Store::File
+
     Authentication
-    Authorization::Roles
-
-    Session Session::State::Cookie
-    Session Session::State::Stash
-    Session Session::Store::File
-
     SmartURI
-
     Unicode
+    Compress
 /;
 
 extends 'Catalyst';
@@ -59,6 +58,7 @@ __PACKAGE__->config(
     },
     default_view => 'HTML',
     case_sensitive => 1,
+    compression_format => 'gzip',
     'Plugin::Authentication' =>
             {
                 default => {
@@ -77,8 +77,8 @@ __PACKAGE__->config(
             },
     'Plugin::Session' => 
             {
-                storage => '/tmp/session',
-                expires => 3600,
+                storage   => '/tmp/session',
+                expires   => 3600,
             },
 );
 

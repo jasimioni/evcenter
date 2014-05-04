@@ -34,6 +34,7 @@ sub default :Path :Args() {
 
     if ($o_method eq 'auth') {
         if ($c->authenticate($jsonrpc->{params})) {
+            $c->forward('/Auth/calculate_permissions');
             $jsonrpc_output->{result} = { message => "Authentication Successful", auth => $c->sessionid };
         } else {
             $jsonrpc_output->{error} = {
@@ -42,7 +43,7 @@ sub default :Path :Args() {
             }
         }
     } else {
-        $c->stash('_session' => { id => $jsonrpc->{auth} }) if (defined $jsonrpc->{auth});
+        $c->stash('_session' => { id => $jsonrpc->{auth} } ) if (defined $jsonrpc->{auth});
         if ($c->user_exists) {
             my ($controller, $method) = split(/\./, $o_method);
             $controller =~ s/\W//g;
@@ -70,7 +71,6 @@ sub default :Path :Args() {
         }
          
     }
-
 
     $jsonrpc_output->{id}      = $jsonrpc->{id}      if (exists $jsonrpc->{id});
     $jsonrpc_output->{jsonrpc} = $jsonrpc->{jsonrpc} if (exists $jsonrpc->{jsonrpc});

@@ -23,6 +23,7 @@ requires 'Catalyst::Plugin::SmartURI';
 requires 'Catalyst::Plugin::Unicode';
 requires 'Catalyst::View::TT';
 requires 'Catalyst::Authentication::Store::DBIx::Class';
+requires 'Catalyst::Plugin::Compress';
 
 requires 'DBIx::Connector';
 requires 'SQL::Abstract::More';

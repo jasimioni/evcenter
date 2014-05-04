@@ -60,12 +60,13 @@ Runs on every execution of any method
 
 =cut
 
-sub begin :Private {
+sub auto :Private {
     my ($self, $c) = @_;
 
-    return 1 if ($c->user_exists || 
-                 $c->req->path =~ /^WebServices/ || 
+    return 1 if ($c->req->path =~ /^WebServices/ ||
+                 $c->user_exists                 ||
                  $c->req->path =~ /^Auth/);
+
     $c->response->redirect($c->uri_for('/Auth/login'));
 }
 

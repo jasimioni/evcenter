@@ -76,8 +76,45 @@ sub add :Private {
 	}
 }
 
-sub get {
+sub get :Private {
+	my ( $self, $c, $params ) = @_;
+
+	$params = {} if (! defined $params);
+
+	if (ref $params ne 'HASH') {
+		return { error => { 
+				code => 'INVALID_METHOD_PARAMETER', 
+				message => 'Invalid method parameter(s). Must provide a hashref'
+				} };			
+	}
+
+	$params->{restrict} = $c->session->{srf};
+
+	my ($rows, $columns) = $c->model('Event')->get_events(%$params);
+
+	if (defined $rows) {
+		return { result => { rows => $rows, columns => $columns } };
+	} else {
+		return { error => {
+					code => 'DATABASE_ACTION_FAILURE',
+					message => 'Failed to get events: ' . $c->model('Event')->errstr,
+				} };
+	}	
 	
+}
+
+sub get_columns :Private {
+	my ( $self, $c ) = @_;
+
+	my $columns = $c->model('Event')->columns;
+	if (defined $columns) {
+		return { result => { columns => $columns } };
+	} else {
+		return { error => {
+					code => 'DATABASE_ACTION_FAILURE',
+					message => 'Failed to get columns',
+				} };
+	}
 }
 
 =encoding utf8

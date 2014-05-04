@@ -11,72 +11,30 @@
   <meta name="author" content="">
 
 
-  <!-- Stylesheets -->
-  <link href="[% c.uri_for('/static/style/bootstrap.css') %]" rel="stylesheet">
-  <!-- Font awesome icon -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/font-awesome.css') %]"> 
-  <!-- jQuery UI -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/jquery-ui.css') %]"> 
-  <!-- Calendar -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/fullcalendar.css') %]">
-  <!-- prettyPhoto -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/prettyPhoto.css') %]">  
-  <!-- Star rating -->
-  <!-- link rel="stylesheet" href="[% c.uri_for('/static/style/rateit.css') %]" -->
-  <!-- Date picker -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/bootstrap-datetimepicker.min.css') %]">
-  <!-- CLEditor -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/jquery.cleditor.css') %]"> 
-  <!-- Uniform -->
-  <!-- link rel="stylesheet" href="[% c.uri_for('/static/style/uniform.default.css') %]" --> 
-  <!-- Bootstrap toggle -->
-  <link rel="stylesheet" href="[% c.uri_for('/static/style/bootstrap-toggle-buttons.css') %]">
-  <!-- Main stylesheet -->
-  <link href="[% c.uri_for('/static/style/style.css') %]" rel="stylesheet">
-  <!-- Widgets stylesheet -->
-  <link href="[% c.uri_for('/static/style/widgets.css') %]" rel="stylesheet"> 
-  <link href="[% c.uri_for('/static/jqgrid/css/ui.jqgrid.css') %]" rel="stylesheet">    
-  <link href="[% c.uri_for('/static/style/custom.css') %]" rel="stylesheet">  
-  <!-- HTML5 Support for IE -->
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap.min.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/font-awesome.min.css') %]"> 
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery-ui.css') %]"> 
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/fullcalendar.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/prettyPhoto.css') %]">  
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/rateit.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap-datetimepicker.min.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery.cleditor.css') %]">  
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery.dataTables.css') %]"> 
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery.onoff.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/style.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/widgets.css') %]">   
+
+  <link rel="stylesheet" href="[% c.uri_for('/static/jqgrid/css/ui.jqgrid.css') %]">    
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/custom.css') %]">  
+
+  <script src="[% c.uri_for('/static/js/respond.min.js') %]"></script>
   <!--[if lt IE 9]>
-  <script src="[% c.uri_for('/static/js/html5shim.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/html5shiv.js') %]"></script>
   <![endif]-->
 
   <!-- Favicon -->
-  <link rel="shortcut icon" href="[% c.uri_for('/static/img/favicon/favicon.png') %]">
-  <!-- JS -->
+  <link rel="shortcut icon" href="[% c.uri_for('/static/img/favicon/favicon.ico') %]">
   <script src="[% c.uri_for('/static/js/jquery.js') %]"></script> <!-- jQuery -->
-  <script src="[% c.uri_for('/static/js/bootstrap.js') %]"></script> <!-- Bootstrap -->
-  <script src="[% c.uri_for('/static/js/jquery-ui-1.9.2.custom.min.js') %]"></script> <!-- jQuery UI -->
-  <script src="[% c.uri_for('/static/js/fullcalendar.min.js') %]"></script> <!-- Full Google Calendar - Calendar -->
-  <script src="[% c.uri_for('/static/js/jquery.rateit.min.js') %]"></script> <!-- RateIt - Star rating -->
-  <script src="[% c.uri_for('/static/js/jquery.prettyPhoto.js') %]"></script> <!-- prettyPhoto -->
-
-  <!-- jQuery Flot -->
-  <script src="[% c.uri_for('/static/js/excanvas.min.js') %]"></script>
-  <script src="[% c.uri_for('/static/js/jquery.flot.js') %]"></script>
-  <script src="[% c.uri_for('/static/js/jquery.flot.resize.js') %]"></script>
-  <script src="[% c.uri_for('/static/js/jquery.flot.pie.js') %]"></script>
-  <script src="[% c.uri_for('/static/js/jquery.flot.stack.js') %]"></script>
-
-  <!-- jQuery Notification - Noty -->
-  <script src="[% c.uri_for('/static/js/jquery.noty.js') %]"></script> <!-- jQuery Notify -->
-  <script src="[% c.uri_for('/static/js/themes/default.js') %]"></script> <!-- jQuery Notify -->
-  <script src="[% c.uri_for('/static/js/layouts/bottom.js') %]"></script> <!-- jQuery Notify -->
-  <script src="[% c.uri_for('/static/js/layouts/topRight.js') %]"></script> <!-- jQuery Notify -->
-  <script src="[% c.uri_for('/static/js/layouts/top.js') %]"></script> <!-- jQuery Notify -->
-  <!-- jQuery Notification ends -->
-
-  <script src="[% c.uri_for('/static/js/sparklines.js') %]"></script> <!-- Sparklines -->
-  <script src="[% c.uri_for('/static/js/jquery.cleditor.min.js') %]"></script> <!-- CLEditor -->
-  <script src="[% c.uri_for('/static/js/bootstrap-datetimepicker.min.js') %]"></script> <!-- Date picker -->
-  <!-- script src="[% c.uri_for('/static/js/jquery.uniform.min.js') %]"></script--> <!-- jQuery Uniform -->
-  <script src="[% c.uri_for('/static/js/jquery.toggle.buttons.js') %]"></script> <!-- Bootstrap Toggle -->
-  <script src="[% c.uri_for('/static/js/filter.js') %]"></script> <!-- Filter for support page -->
-  <script src="[% c.uri_for('/static/jqgrid/js/jquery.jqGrid.min.js') %]"></script> <!-- Filter for support page -->
-  <script src="[% c.uri_for('/static/js/custom.js') %]"></script> <!-- Custom codes -->
-  <script src="[% c.uri_for('/static/js/charts.js') %]"></script> <!-- Charts & Graphs -->
-
 </head>
 
 <body>
@@ -86,12 +44,12 @@
     <div class="conjtainer">
       <!-- Menu button for smallar screens -->
       <div class="navbar-header">
-		  <button class="navbar-toggle btn-navbar" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-			<span>Menu</span>
-		  </button>
-		  <!-- Site name for smallar screens -->
-		  <a href="index.html" class="navbar-brand hidden-lg">EVCenter</a>
-		</div>
+          <button class="navbar-toggle btn-navbar" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+            <span>Menu</span>
+          </button>
+          <!-- Site name for smallar screens -->
+          <a href="index.html" class="navbar-brand hidden-lg">MacBeth</a>
+        </div>
       
       
 
@@ -102,7 +60,7 @@
 
           <!-- Upload to server link. Class "dropdown-big" creates big dropdown -->
           <li class="dropdown dropdown-big">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="label label-success"><i class="icon-cloud-upload"></i></span> Upload to Cloud</a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="label label-success"><i class="fa fa-cloud-upload"></i></span> Upload to Cloud</a>
             <!-- Dropdown -->
             <ul class="dropdown-menu">
               <li>
@@ -110,10 +68,10 @@
                 <p>Photo Upload in Progress</p>
                 <!-- Bootstrap progress bar -->
                 <div class="progress progress-striped active">
-					<div class="progress-bar progress-bar-info"  role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-						<span class="sr-only">40% Complete</span>
-					</div>
-			    </div>
+                    <div class="progress-bar progress-bar-info"  role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                        <span class="sr-only">40% Complete</span>
+                    </div>
+                </div>
 
                 <hr />
 
@@ -121,10 +79,10 @@
                 <p>Video Upload in Progress</p>
                 <!-- Bootstrap progress bar -->
                 <div class="progress progress-striped active">
-					<div class="progress-bar progress-bar-success"  role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-						<span class="sr-only">80% Complete</span>
-					</div>
-			    </div> 
+                    <div class="progress-bar progress-bar-success"  role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
+                        <span class="sr-only">80% Complete</span>
+                    </div>
+                </div> 
 
                 <hr />             
 
@@ -139,14 +97,14 @@
 
           <!-- Sync to server link -->
           <li class="dropdown dropdown-big">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="label label-danger"><i class="icon-refresh"></i></span> Sync with Server</a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="label label-danger"><i class="fa fa-refresh"></i></span> Sync with Server</a>
             <!-- Dropdown -->
             <ul class="dropdown-menu">
               <li>
                 <!-- Using "icon-spin" class to rotate icon. -->
-                <p><span class="label label-info"><i class="icon-refresh icon-spin"></i></span> Syncing Members Lists to Server</p>
+                <p><span class="label label-info"><i class="fa fa-cloud"></i></span> Syncing Members Lists to Server</p>
                 <hr />
-                <p><span class="label label-warning"><i class="icon-refresh icon-spin"></i></span> Syncing Bookmarks Lists to Cloud</p>
+                <p><span class="label label-warning"><i class="fa fa-cloud"></i></span> Syncing Bookmarks Lists to Cloud</p>
 
                 <hr />
 
@@ -163,22 +121,22 @@
 
         <!-- Search form -->
         <form class="navbar-form navbar-left" role="search">
-			<div class="form-group">
-				<input type="text" class="form-control" placeholder="Search">
-			</div>
-		</form>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search">
+            </div>
+        </form>
         <!-- Links -->
         <ul class="nav navbar-nav pull-right">
           <li class="dropdown pull-right">            
             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-              <i class="icon-user"></i> [% c.user.id %] <b class="caret"></b>              
+              <i class="fa fa-user"></i> [% c.user.id %] <b class="caret"></b>              
             </a>
             
             <!-- Dropdown menu -->
             <ul class="dropdown-menu">
-              <li><a href="#"><i class="icon-user"></i> Profile</a></li>
-              <li><a href="#"><i class="icon-cogs"></i> Settings</a></li>
-              <li><a href="[% c.uri_for('/Auth/logout') %]"><i class="icon-off"></i> Logout</a></li>
+              <li><a href="#"><i class="fa fa-user"></i> Profile</a></li>
+              <li><a href="#"><i class="fa fa-cogs"></i> Settings</a></li>
+              <li><a href="[% c.uri_for('/Auth/logout') %]"><i class="fa fa-sign-out"></i> Logout</a></li>
             </ul>
           </li>
           
@@ -213,13 +171,13 @@
             <!-- Comment button with number of latest comments count -->
             <li class="dropdown dropdown-big">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">
-                <i class="icon-comments"></i> Chats <span   class="label label-info">6</span> 
+                <i class="fa fa-comments"></i> Chats <span   class="label label-info">6</span> 
               </a>
 
                 <ul class="dropdown-menu">
                   <li>
                     <!-- Heading - h5 -->
-                    <h5><i class="icon-comments"></i> Chats</h5>
+                    <h5><i class="fa fa-comments"></i> Chats</h5>
                     <!-- Use hr tag to add border -->
                     <hr />
                   </li>
@@ -250,13 +208,13 @@
             <!-- Message button with number of latest messages count-->
             <li class="dropdown dropdown-big">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">
-                <i class="icon-envelope-alt"></i> Inbox <span class="label label-primary">6</span> 
+                <i class="fa fa-envelope"></i> Inbox <span class="label label-primary">6</span> 
               </a>
 
                 <ul class="dropdown-menu">
                   <li>
                     <!-- Heading - h5 -->
-                    <h5><i class="icon-envelope-alt"></i> Messages</h5>
+                    <h5><i class="fa fa-envelope"></i> Messages</h5>
                     <!-- Use hr tag to add border -->
                     <hr />
                   </li>
@@ -283,13 +241,13 @@
             <!-- Members button with number of latest members count -->
             <li class="dropdown dropdown-big">
               <a class="dropdown-toggle" href="#" data-toggle="dropdown">
-                <i class="icon-user"></i> Users <span   class="label label-success">6</span> 
+                <i class="fa fa-user"></i> Users <span   class="label label-success">6</span> 
               </a>
 
                 <ul class="dropdown-menu">
                   <li>
                     <!-- Heading - h5 -->
-                    <h5><i class="icon-user"></i> Users</h5>
+                    <h5><i class="fa fa-user"></i> Users</h5>
                     <!-- Use hr tag to add border -->
                     <hr />
                   </li>
@@ -330,7 +288,7 @@
             <div class="hdata">
               <div class="mcol-left">
                 <!-- Icon with red background -->
-                <i class="icon-signal bred"></i> 
+                <i class="fa fa-signal bred"></i> 
               </div>
               <div class="mcol-right">
                 <!-- Number of visitors -->
@@ -343,7 +301,7 @@
             <div class="hdata">
               <div class="mcol-left">
                 <!-- Icon with blue background -->
-                <i class="icon-user bblue"></i> 
+                <i class="fa fa-user bblue"></i> 
               </div>
               <div class="mcol-right">
                 <!-- Number of visitors -->
@@ -356,7 +314,7 @@
             <div class="hdata">
               <div class="mcol-left">
                 <!-- Icon with green background -->
-                <i class="icon-money bgreen"></i> 
+                <i class="fa fa-money bgreen"></i> 
               </div>
               <div class="mcol-right">
                 <!-- Number of visitors -->
@@ -378,21 +336,20 @@
 
 <div class="content">
 
-  	<!-- Sidebar -->
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-dropdown"><a href="#">Navigation</a></div>
 
         <!--- Sidebar navigation -->
         <!-- If the main navigation has sub navigation, then add the class "has_sub" to "li" of main navigation. -->
         <ul id="nav">
-          <!-- Main menu with font awesome icon -->
-          <li>
+
             [% FOREACH menuitem IN menu %]
                 [% IF menuitem.submenu %]
-                    <li class="has_sub">
-                        <a href="#" class='left-menu-item[% IF menuitem.active %] open[% END %]'>
-                            <i class="[% menuitem.icon %]"></i> [% menuitem.name %]  
-                            <span class="pull-right"><i class="icon-chevron-right"></i></span>
+                    <li class="has_sub[% IF menuitem.active %] open[% END %]">
+                        <a href="#">
+                            <i class="fa [% menuitem.icon %]"></i> [% menuitem.name %]  
+                            <span class="pull-right"><i class="fa fa-chevron-right"></i></span>
                         </a>
                         <ul>
                         [% FOREACH submenuitem IN menuitem.submenu %]
@@ -401,25 +358,24 @@
                         </ul>
                     </li>  
                 [% ELSE %]
-                   <li><a href="[% menuitem.link %]" class="left-menu-item[% IF menuitem.active %] open[% END %]"><i class="[% menuitem.icon %]"></i> [% menuitem.name %]</a></li>
+                   <li class="[% IF menuitem.active %]open[% END %]"><a href="[% menuitem.link %]"><i class="fa [% menuitem.icon %]"></i> [% menuitem.name %]</a></li>
                 [% END %]                
             [% END %]
-          </li>
         </ul>
     </div>
 
     <!-- Sidebar ends -->
 
-  	<!-- Main bar -->
+    <!-- Main bar -->
     <div class="mainbar">
 
       <!-- Page heading -->
       <div class="page-head">
-        <h2 class="pull-left"><i class="[% pagehead.icon %]"></i> [% pagehead.title %]</h2>
+        <h2 class="pull-left"><i class="fa [% pagehead.icon %]"></i> [% pagehead.title %]</h2>
 
         <!-- Breadcrumb -->
         <div class="bread-crumb pull-right">
-          <a href="index.html"><i class="icon-home"></i> Home</a> 
+          <a href="index.html"><i class="fa fa-home"></i> Home</a> 
           <!-- Divider -->
           <span class="divider">/</span> 
           <a href="#" class="bread-current">Dashboard</a>
@@ -431,20 +387,19 @@
       <!-- Page heading ends -->
 
 
-      <!-- Matter -->
+        <!-- Matter -->
 
       <div class="matter">
         <div class="padded">
             [% content %]
         </div>
+      </div>
+
+        <!-- Matter ends -->
+
     </div>
 
-    <!-- Matter ends -->
-
-    </div>
-
-
-   <!-- Mainbar ends -->	    	
+   <!-- Mainbar ends -->            
    <div class="clearfix"></div>
 
 </div>
@@ -460,13 +415,47 @@
       </div>
     </div>
   </div>
-</footer> 	
+</footer>   
 
 <!-- Footer ends -->
 
 <!-- Scroll to top -->
-<span class="totop"><a href="#"><i class="icon-chevron-up"></i></a></span> 
+<span class="totop"><a href="#"><i class="fa fa-chevron-up"></i></a></span> 
 
+<!-- JS -->
+<script src="[% c.uri_for('/static/js/bootstrap.min.js') %]"></script> <!-- Bootstrap -->
+<script src="[% c.uri_for('/static/js/jquery-ui.min.js') %]"></script> <!-- jQuery UI -->
+<script src="[% c.uri_for('/static/js/fullcalendar.min.js') %]"></script> <!-- Full Google Calendar - Calendar -->
+<script src="[% c.uri_for('/static/js/jquery.prettyPhoto.js') %]"></script> <!-- prettyPhoto -->
+<script src="[% c.uri_for('/static/js/jquery.slimscroll.min.js') %]"></script> <!-- jQuery Slim Scroll -->
+<script src="[% c.uri_for('/static/js/jquery.dataTables.min.js') %]"></script> <!-- Data tables -->
+
+<!-- jQuery Flot -->
+<script src="[% c.uri_for('/static/js/excanvas.min.js') %]"></script>
+<script src="[% c.uri_for('/static/js/jquery.flot.js') %]"></script>
+<script src="[% c.uri_for('/static/js/jquery.flot.resize.js') %]"></script>
+<script src="[% c.uri_for('/static/js/jquery.flot.pie.js') %]"></script>
+<script src="[% c.uri_for('/static/js/jquery.flot.stack.js') %]"></script>
+
+<!-- jQuery Notification - Noty -->
+<script src="[% c.uri_for('/static/js/jquery.noty.js') %]"></script> <!-- jQuery Notify -->
+<script src="[% c.uri_for('/static/js/themes/default.js') %]"></script> <!-- jQuery Notify -->
+<script src="[% c.uri_for('/static/js/layouts/bottom.js') %]"></script> <!-- jQuery Notify -->
+<script src="[% c.uri_for('/static/js/layouts/topRight.js') %]"></script> <!-- jQuery Notify -->
+<script src="[% c.uri_for('/static/js/layouts/top.js') %]"></script> <!-- jQuery Notify -->
+<!-- jQuery Notification ends -->
+
+<script src="[% c.uri_for('/static/js/sparklines.js') %]"></script> <!-- Sparklines -->
+<script src="[% c.uri_for('/static/js/jquery.cleditor.min.js') %]"></script> <!-- CLEditor -->
+<script src="[% c.uri_for('/static/js/bootstrap-datetimepicker.min.js') %]"></script> <!-- Date picker -->
+<script src="[% c.uri_for('/static/js/jquery.onoff.min.js') %]"></script> <!-- Bootstrap Toggle -->
+<script src="[% c.uri_for('/static/js/filter.js') %]"></script> <!-- Filter for support page -->
+
+<script src="[% c.uri_for('/static/jqgrid/js/jquery.jqGrid.min.js') %]"></script> <!-- jqGrid -->
+<script src="[% c.uri_for('/static/jqgrid/js/i18n/grid.locale-en.js') %]"></script> <!-- jqGrid Locale -->
+
+<script src="[% c.uri_for('/static/js/custom.js') %]"></script> <!-- Custom codes -->
+<script src="[% c.uri_for('/static/js/charts.js') %]"></script> <!-- Charts & Graphs -->
 
 </body>
 </html>

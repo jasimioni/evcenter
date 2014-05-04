@@ -430,31 +430,7 @@ sub get_filter {
         } 
     }
 
-    return $self->filter_to_string($filter);
-}
-
-=head2 filter_to_string
-
-This method will get the output of C<$self->get_filter> and transform it
-in a WHERE clause, to be appended to all WHERE clauses regarding the 
-events.
-
-=cut
-
-sub filter_to_string {
-    my ($self, $filter) = @_;
-
-    if (! defined $filter) {
-        return '';
-    }
-    if (ref $filter eq 'ARRAY') {
-        my ($op, $el) = @$filter;
-        $op =~ s/-//;
-        $op = uc $op;
-        return join(" $op ", map { ' ( ' . $self->filter_to_string($_) . ' ) ' } @{$el});
-    } else {
-        return $filter;
-    }
+    return $filter;
 }
 
 =head2 get_filter_from_groups
@@ -479,8 +455,8 @@ sub get_filter_from_groups {
         my $roles = $self->get_group_roles($group);
         my @group_filters;
         foreach my $role (keys %$roles) {
-            if (defined $roles->{$role}{filter}) {
-                push @group_filters, $roles->{$role}{filter};
+            if (defined $roles->{$role}{filter} && $roles->{$role}{filter} ne '') {
+                push @group_filters, decode_json $roles->{$role}{filter};
             }
         }
         my $group_filter = @group_filters > 1 ? [ -or => [ @group_filters ] ] : 
@@ -515,8 +491,8 @@ sub get_filter_from_user_roles {
 
     my @user_filters;
     foreach my $role (keys %$roles) {
-        if (defined $roles->{$role}{filter}) {
-            push @user_filters, $roles->{$role}{filter};
+        if (defined $roles->{$role}{filter} && $roles->{$role}{filter} ne '') {
+            push @user_filters, decode_json $roles->{$role}{filter};
         }
     } 
 
@@ -543,6 +519,9 @@ sub get_filter_from_user {
     }); 
 
     my ($filter, $filter_type) = $sth->fetchrow_array;
+    if (defined $filter) {
+        $filter = $filter eq '' ? undef : decode_json $filter;
+    }
 
     return ($filter, $filter_type);    
 }

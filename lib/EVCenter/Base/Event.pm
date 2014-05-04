@@ -9,18 +9,18 @@ use namespace::clean -except => 'meta';
 use JSON::MaybeXS;
 use Log::Any qw/$log/;
 
-has 'conn'     => ( is => 'ro', isa => 'Object', lazy => 1, builder => '_build_conn' );
-has 'dbhost'   => ( is => 'rw', isa => 'Str', default => '' );
-has 'dbname'   => ( is => 'rw', isa => 'Str', default => 'evcenter' );
-has 'dbuser'   => ( is => 'rw', isa => 'Str', default => '' );
-has 'dbpass'   => ( is => 'rw', isa => 'Str', default => '' );
-has 'dbport'   => ( is => 'rw', isa => 'Str', default => '' );
-has 'dbopts'   => ( is => 'rw', isa => 'Str', default => '' );
-has 'dbi_opts' => ( is => 'rw', isa => 'HashRef' );
-has 'errstr'   => ( is => 'rw', isa => 'Str' );
-has 'dbfields' => ( is => 'rw', isa => 'HashRef' );
-has 'sqla'     => ( is => 'ro', isa => 'Object', default => sub { SQL::Abstract::More->new() } );
-has 'fields'   => ( is => 'ro', isa => 'ArrayRef', builder => '_build_fields' );
+has 'conn'      => ( is => 'ro', isa => 'Object', lazy => 1, builder => '_build_conn' );
+has 'dbhost'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbname'    => ( is => 'rw', isa => 'Str', default => 'evcenter' );
+has 'dbuser'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbpass'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbport'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbopts'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbi_opts'  => ( is => 'rw', isa => 'HashRef' );
+has 'errstr'    => ( is => 'rw', isa => 'Str' );
+has 'dbcolumns' => ( is => 'rw', isa => 'HashRef' );
+has 'sqla'      => ( is => 'ro', isa => 'Object', default => sub { SQL::Abstract::More->new() } );
+has 'columns'   => ( is => 'ro', isa => 'ArrayRef', builder => '_build_columns' );
 
 sub _build_conn {
     my $self = shift;
@@ -38,7 +38,7 @@ sub _build_conn {
     return $conn;
 }
 
-sub _build_fields {
+sub _build_columns {
     my $self = shift;
     my $query = 'SELECT * FROM active_events WHERE 1 = 0';
     my $sth = $self->conn->run(fixup => sub {
@@ -62,12 +62,13 @@ sub check_db {
                 $sth;
         });
         $sth->finish;
-        $self->_build_fields;
+        $self->_build_columns;
         return 1;
     } catch {
         $self->errstr($_);
         return undef;
     };
+    # Remember to have nothing here so it returns the return inside try::catch
 }
 
 sub add_events {
@@ -81,9 +82,9 @@ sub add_events {
                 my $rows = 0;
                 foreach my $event (@$events) {
                     my $n_event = {};
-                    foreach my $field (@{$self->fields}) {
-                        if (defined $event->{$field}) {
-                            $n_event->{$field} = ref $event->{$field} ? encode_json $event->{$field} : $event->{$field};
+                    foreach my $column (@{$self->columns}) {
+                        if (defined $event->{$column}) {
+                            $n_event->{$column} = ref $event->{$column} ? encode_json $event->{$column} : $event->{$column};
                         }
                     }
                     $log->debug("Inserting new event");
@@ -101,6 +102,7 @@ sub add_events {
         $self->errstr($_);
         return undef;
     };
+    # Remember to have nothing here so it returns the return inside try::catch
 }
 
 sub get_events {
@@ -108,19 +110,21 @@ sub get_events {
     $self->errstr('');
 
     my %p = @_;
-    my $filter   = $p{filter}   // {};
-    my $restrict = $p{restrict} // {};
-    my $order_by = $p{order_by} // [];
-    my $limit    = $p{limit};
+    my $filter     = $p{filter}   // {};
+    my $restrict   = $p{restrict} // {};
+    my $order_by   = $p{order_by} // [];
+    my $limit      = $p{limit} // 0;
+    my $offset     = $p{offset} // 0;
+    my $columns    = $p{columns} // '*';
 
-    my ($query, @params) = $self->sqla->select(-columns  => '*', 
+    my ($query, @params) = $self->sqla->select(-columns  => $columns,
                                                -from     => 'active_events',
                                                -where    => [ -and => [ $filter, $restrict ] ],
                                                -order_by => $order_by,
                                                -limit    => $limit,
                                            );
 
-    print STDERR "SQL: $query => Params: ", join(", ", @params), "\n";
+    $log->debug("SQL: $query => Params: " . join(", ", @params));
                                            
     try {
         my $sth = $self->conn->run(fixup => sub {
@@ -129,7 +133,7 @@ sub get_events {
                 $sth;
         });
 
-        my $rows = $sth->fetchall_arrayref({});
+        my $rows = $sth->fetchall_arrayref;
         $sth->finish;
 
         return $rows, $sth->{NAME};
@@ -137,6 +141,7 @@ sub get_events {
         $self->errstr($_);
         return undef;
     };
+    # Remember to have nothing here so it returns the return inside try::catch
 }
 
 sub del_events {
@@ -160,6 +165,7 @@ sub del_events {
         $self->errstr($_);
         return undef;
     };
+    # Remember to have nothing here so it returns the return inside try::catch
 }
 
 sub upd_events {
@@ -188,6 +194,7 @@ sub upd_events {
         $self->errstr($_);
         return undef;
     };
+    # Remember to have nothing here so it returns the return inside try::catch
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -256,7 +263,7 @@ Returns a new object.
 
     my $updated_count = $ev->upd_events( update => \%data, filter => \%filter, restrict => \%restrict_filter );
 
-    Updates the events that match filter AND restrict, setting up the fields in update key.
+    Updates the events that match filter AND restrict, setting up the column in update key.
 
     Returns the number of updated rows of undef on failure.
 
