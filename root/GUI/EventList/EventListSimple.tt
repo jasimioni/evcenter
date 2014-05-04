@@ -1,0 +1,31 @@
+<table id='el'></table>
+
+<script>
+  $(document).ready(function() {
+    var vColModel = [];
+    [% FOR header IN fields %]
+      vColModel.push({ name: '[% header %]', index: '[% header %]', width: 150 });
+    [% END %]
+
+    cHeight = $(window).height() - $('#el').offset().top - 60 - 31;
+
+    $('#el').jqGrid({        
+      datatype: "local",
+      height: cHeight,
+      colNames: [
+          '[% fields.join("', '") %]'
+      ],
+      colModel: vColModel,
+      autowidth: true,
+      caption: "Event List"
+    });
+
+    [% FOR row IN rows %]
+      var event_data = {};        
+      [% FOR header IN fields %]
+        event_data['[% header %]'] = '[% row.$header %]';
+      [% END %]
+      $('#el').jqGrid('addRowData', event_data['serial'], event_data);
+    [% END %]
+  });
+</script>
