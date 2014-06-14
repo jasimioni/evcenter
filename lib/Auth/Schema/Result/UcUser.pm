@@ -70,9 +70,11 @@ __PACKAGE__->table("uc_users");
 
 __PACKAGE__->add_columns(
   "username",
-  { data_type => "varchar", default_value => "", is_nullable => 0, size => 200 },
+  { data_type => "varchar", default_value => "", is_nullable => 0 },
   "password",
-  { data_type => "varchar", is_nullable => 1, size => 200 },
+  { data_type => "varchar", is_nullable => 1 },
+  "details",
+  { data_type => "varchar", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY

@@ -89,6 +89,8 @@ sub get :Private {
 	}
 
 	$params->{restrict} = $c->session->{srf};
+	use Data::Dumper;
+	$c->log->debug(Dumper $params);
 
 	my ($rows, $columns) = $c->model('Event')->get_events(%$params);
 

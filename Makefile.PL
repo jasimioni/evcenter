@@ -30,6 +30,7 @@ requires 'SQL::Abstract::More';
 requires 'Log::Any::Adapter::Catalyst';
 requires 'Module::Pluggable::Object';
 requires 'JSON::MaybeXS';
+requires 'Hash::Merge::Simple';
 
 test_requires 'Test::More' => '0.88';
 catalyst;

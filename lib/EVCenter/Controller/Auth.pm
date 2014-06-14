@@ -52,17 +52,23 @@ sub logout :Local :Args(0) {
     my  ( $self, $c ) = @_;
 
     $c->logout;
+    $c->delete_session;
     $c->response->redirect($c->uri_for('/Auth/login'));
 }
 
 sub calculate_permissions :Private {
     my ( $self, $c ) = @_;
 
-    $c->session->{srf} = $c->model('ACL')->get_filter($c->user->id);        # SQL Restriction Filter
-    $c->session->{acl} = $c->model('ACL')->get_permissions($c->user->id);   # Access Control List
+    $c->session('srf'          => $c->model('ACL')->get_filter($c->user->id));        # SQL Restriction Filter
+    $c->session('acl'          => $c->model('ACL')->get_permissions($c->user->id));   # Access Control List
+    $c->session('user_groups'  => $c->model('ACL')->get_all_user_groups($c->user->id));
+    $c->session('user_details' => $c->model('UserControl')->get_user_details($c->user->id));
 
     use Data::Dumper;
     $c->log->debug("SQL Restriction Filter: " . Dumper $c->session->{srf});
+    $c->log->debug("Details: " . Dumper $c->session->{user_details});
+    $c->log->debug("Groups: " . Dumper $c->session->{user_groups});
+    $c->log->debug("UI Filters: " . Dumper $c->session->{ui_filters});
 }
 
 =encoding utf8

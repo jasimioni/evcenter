@@ -204,7 +204,7 @@ sub get_user_group_tree {
     
     @user_groups = $self->get_user_groups($username);
 
-Get the groups C<$username> belongs to.
+Get the groups C<$username> belongs to (directly).
 
 =cut
 
@@ -219,6 +219,29 @@ sub get_user_groups {
     });
 
     return map { $_->[0] } @{$sth->fetchall_arrayref};
+}
+
+=head2 get_all_user_groups
+    
+    @user_groups = $self->get_all_user_groups($username);
+
+Get the groups C<$username> belongs to, including the parent groups
+from the groups it belongs to.
+
+=cut
+
+sub get_all_user_groups {
+    my ( $self, $username ) = @_;
+
+    my $tree = $self->get_user_group_tree($username); 
+    my @to_check;
+    push @to_check, $tree;
+    my %groups;
+    while (my $c = shift @to_check) {
+        map { $groups{$_} = 1 } keys %{$c->{memberof}};
+        push @to_check, values %{$c->{memberof}};
+    }
+    return [ keys %groups ];
 }
 
 =head2 get_parent_groups
@@ -524,6 +547,102 @@ sub get_filter_from_user {
     }
 
     return ($filter, $filter_type);    
+}
+
+=head2 get_ui_filters
+
+    $hash_ref = $self->get_ui_filters($username)
+
+Returns a hash reference with the filters available at the User Interface.
+
+3 Types of filters exists: 
+
+=item Global: Everyone can select
+
+=item Group:  Only members of the group can select
+
+=item User:   Only the owner can select
+
+=cut
+
+sub get_ui_filters {
+    my ( $self, $username ) = @_;
+
+    try {
+        my $groups = $self->get_all_user_groups($username);  
+
+        my $sth = $self->conn->run(fixup => sub {
+            my $sql = 'SELECT filter_id, filter_name, owner_type, owner, created_by, filter 
+                         FROM ui_filters
+                        WHERE owner_type = ? OR (owner_type = ? AND owner = ?)';
+            my @params = ('global', 'user', $username);
+            if (@$groups) {
+                $sql .= ' OR (owner_type = ? AND owner IN (' . join(', ', map { '?' } @$groups) . '))';
+                push @params, ('group', @$groups);
+            }
+            my $sth = $_->prepare($sql);
+            $sth->execute(@params);
+            $sth;
+        }); 
+
+        my @ui_filters;
+        while (my $row = $sth->fetchrow_hashref) {
+            push @ui_filters, $row;
+        }
+        return \@ui_filters;
+    } catch {
+        $self->errstr('Failed to get info: ' . $_);
+        return undef;
+    };
+}
+
+=head2 get_ui_views
+
+    $hash_ref = $self->get_ui_views($username)
+
+Returns a hash reference with the views available at the User Interface.
+
+3 Types of filters exists: 
+
+=item Global: Everyone can select
+
+=item Group:  Only members of the group can select
+
+=item User:   Only the owner can select
+
+=cut
+
+sub get_ui_views {
+    my ( $self, $username ) = @_;
+
+    try {
+        my $groups = $self->get_all_user_groups($username);  
+
+        my $sth = $self->conn->run(fixup => sub {
+            my $sql = 'SELECT view_id, view_name, owner_type, owner, created_by, view
+                         FROM ui_views
+                        WHERE owner_type = ? OR (owner_type = ? AND owner = ?)';
+            my @params = ('global', 'user', $username);
+            if (@$groups) {
+                $sql .= ' OR (owner_type = ? AND owner IN (' . join(', ', map { '?' } @$groups) . '))';
+                push @params, ('group', @$groups);
+            }
+            my $sth = $_->prepare($sql);
+            $sth->execute(@params);
+            $sth;
+        }); 
+
+        my @ui_views;
+        while (my $row = $sth->fetchrow_hashref) {
+            push @ui_views, $row;
+        }
+        use Data::Dumper;
+        $log->debug(Dumper \@ui_views);
+        return \@ui_views;
+    } catch {
+        $self->errstr('Failed to get info: ' . $_);
+        return undef;
+    };
 }
 
 1;

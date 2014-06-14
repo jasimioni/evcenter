@@ -1,6 +1,7 @@
 package EVCenter::Controller::GUI::EventList;
 use Moose;
 use namespace::autoclean;
+use JSON::MaybeXS;
 use utf8;
 
 BEGIN { extends 'Catalyst::Controller'; }
@@ -22,20 +23,65 @@ Catalyst Controller.
 
 =cut
 
+sub SaveOptions :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash(current_view => 'JSON');
+
+    my $return = $c->forward('/Private/usercontrol/set_user_details', 
+                             [ { user => $c->user->id, 
+                                 details => { postData => $c->req->parameters },
+                               } 
+                             ]);
+
+    $c->session('user_details' => $c->model('UserControl')->get_user_details($c->user->id));
+    $c->stash('jsonrpc_output' => $return);
+}
+
 sub RetrieveEvents :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     my $json = {};
     $c->stash(current_view => 'JSON');
 
-    # TODO - Get Field List from View (from parameters)
+    my $ackfilter  = $c->req->param('ackfilter');
+    my $suppfilter = $c->req->param('suppfilter');
+    my $filterid   = $c->req->param('filterid');
+    my $viewid     = $c->req->param('viewid');
+
+    my @filters;
+    my $filter = $c->session->{ui_filters}{id}{$filterid}{filter};
+    push @filters, decode_json($filter) if (defined $filter);
+
+    my $view;
+    $view = $c->session->{ui_views}{id}{$viewid}{view};
+
+    if ($ackfilter eq 'acked') {
+        push @filters, [ ack => 1 ];
+    } elsif ($ackfilter eq 'unacked') {
+        push @filters, [ ack => 0 ];
+    }
+
+    if ($suppfilter eq 'suppressed') {
+        push @filters, [ suppression => { '!=' => 0 } ];
+    } elsif ($suppfilter eq 'notsuppressed') {
+        push @filters, [ suppression => 0 ];
+    }
+
+    # In the future, I should change this forward to a CallWebServiceInternally Plugin
     my $return = $c->forward('/Private/event/get', [ { columns => [ 'serial', 'severity', 'ack', '*' ],
-                                                       limit   => $c->req->param('limit') 
+                                                       limit   => $c->req->param('limit'),
+                                                       filter  => { -and => \@filters },
                                                      } ]);  
     my $result = $return->{result};
 
     if (! defined $result) {
-        die $return->{error}{message};
+        $json = {
+            error => 'Failed to retrieve events: ' . $return->{error}{message}
+        };
+        $c->stash('jsonrpc_output' => $json);
+        $c->response->status(400);
+        return 1;
     }
 
     my $rows = $result->{rows};
@@ -72,6 +118,27 @@ sub RetrieveEvents :Local :Args(0) {
 
 sub EventList :Path :Args(0) {
 	my ( $self, $c ) = @_;
+
+    # $c->session->{user_details}{postData} is populated on login
+    my $ackfilter  = $c->req->param('ackfilter')  // $c->session->{user_details}{postData}{ackfilter};
+    my $suppfilter = $c->req->param('suppfilter') // $c->session->{user_details}{postData}{suppfilter};
+    my $filterid   = $c->req->param('filterid')   // $c->session->{user_details}{postData}{filterid} || 0;
+    my $viewid     = $c->req->param('viewid')     // $c->session->{user_details}{postData}{viewid} || 0;
+
+    # Populates the list of filters and Views the user has available to him
+    # This is intended to update the filter and view list on the first load 
+    # of the EventList
+    $c->forward('/GUI/PopulateFilterData');
+    $c->forward('/GUI/PopulateViewData');
+
+    $c->stash->{gui} = {
+        ackfilter  => $ackfilter,
+        suppfilter => $suppfilter,
+        filterid   => $filterid,
+        viewid     => $viewid,
+        filtername => $c->session->{ui_filters}{id}{$filterid}{filter_name} // 'Filter ID Not Defined',
+        viewname   => $c->session->{ui_views}{id}{$viewid}{view_name}       // 'View ID Not Defined',
+    };
 
     my $fullscreen = $c->req->param('fullscreen');
     if ($fullscreen eq 'yes') {

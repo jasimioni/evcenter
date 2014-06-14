@@ -68,6 +68,7 @@ sub auto :Private {
                  $c->req->path =~ /^Auth/);
 
     $c->response->redirect($c->uri_for('/Auth/login'));
+    return 0;
 }
 
 =head1 AUTHOR

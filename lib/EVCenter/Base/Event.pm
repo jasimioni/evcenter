@@ -30,8 +30,9 @@ sub _build_conn {
     $dsn .= ';port=' . $self->dbport if ($self->dbport);
     $dsn .= ';opts=' . $self->dbopts if ($self->dbopts);
 
-    $self->{dbi_opts}{RaiseError} = 1;
-    $self->{dbi_opts}{PrintError} = 0;
+    $self->{dbi_opts}{RaiseError}  = 1;
+    $self->{dbi_opts}{PrintError}  = 0;
+    $self->{dbi_opts}{HandleError} = sub { die(shift . "\n") }; # Hide file and line number
 
     my $conn = DBIx::Connector->new($dsn, $self->dbuser, $self->dbpass, $self->dbi_opts);
 
