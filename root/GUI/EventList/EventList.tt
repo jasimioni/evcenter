@@ -203,6 +203,7 @@
     $('.evc-filter-suppress').click(function(ev) {
       ev.preventDefault();
       postData.suppfilter = $(this).attr('value');
+      $.urlparms.add('suppfilter', postData.suppfilter);
       setFiltersText();
       reloadGrid();
     });
@@ -210,6 +211,7 @@
     $('.evc-filter-ack').click(function(ev) {
       ev.preventDefault();
       postData.ackfilter = $(this).attr('value');
+      $.urlparms.add('ackfilter', postData.ackfilter);
       setFiltersText();
       reloadGrid();
     });
@@ -261,6 +263,7 @@
 
             $('#evc-filter-selected').click(function() {
               postData.filterid = $('#evc-filter-select :selected').val();
+              $.urlparms.add('filterid', postData.filterid);
               $('#evc-filter-name').html($('#evc-filter-select :selected').attr('desc'));
               reloadGrid();
               $('#evc-filter-selector').dropdown('toggle');
@@ -305,6 +308,7 @@
 
             $('#evc-view-selected').click(function() {
               postData.viewid = $('#evc-view-select :selected').val();
+              $.urlparms.add('viewid', postData.viewid);
               $('#evc-view-name').html($('#evc-view-select :selected').attr('desc'));
               reloadGrid();
               $('#evc-view-selector').dropdown('toggle');
@@ -424,7 +428,9 @@
     // Replace top right button to 'New Window' button
     $('.ui-jqgrid-titlebar-close > span').removeClass('ui-icon-circle-triangle-n').addClass('ui-icon-newwin');
     $('.ui-jqgrid-titlebar-close').off('click').click(function(ev) {
-      window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]', '_blank');
+      window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]&ackfiler=' 
+                  + postData.ackfilter + '&suppfilter=' + postData.suppfilter + '&filterid='
+                  + postData.filterid  + '&viewid=' + postData.viewid, '_blank');
     });
 
     // Fix Grid Size on Resize

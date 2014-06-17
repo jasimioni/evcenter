@@ -1,5 +1,60 @@
 /* JS */
 
+/* $.hash jQuery Extension
+
+  Allows it to change location URL to include / exclude or change a parameter.
+
+*/
+
+(function ( $ ) {
+    $.urlparms = {
+        add: function(nkey, nvalue) {
+            var sPageURL = window.location.search.substring(1);
+            var newParams = [];
+            var changed   = 0;
+
+            var sURLVariables = sPageURL.split('&');
+            if (sURLVariables[0] == '') {
+              sURLVariables.shift();
+            }
+            for (var i = 0; i < sURLVariables.length; i++) {
+              var sParameterName = sURLVariables[i].split('=');
+              if (sParameterName[0] == nkey) {
+                sURLVariables[i] = nkey + '=' + nvalue;
+                changed = 1;
+              }
+            }
+
+            if (changed == 0) {
+                sURLVariables.push(nkey + '=' + nvalue);
+            }
+            console.log(window.location.pathname + '?' + sURLVariables.join('&'));
+            history.pushState({}, "View Filter Change", window.location.pathname + '?' + sURLVariables.join('&'));
+        },
+        del: function(nkey) {
+            var sPageURL = window.location.search.substring(1);
+            var newParams = [];
+            var splice = -1;
+
+            var sURLVariables = sPageURL.split('&');
+            if (sURLVariables[0] == '') {
+              sURLVariables.shift();
+            }
+            for (var i = 0; i < sURLVariables.length; i++) {
+              var sParameterName = sURLVariables[i].split('=');
+              if (sParameterName[0] == nkey) {
+                splice = i;
+              }
+            }
+
+            if (splice >= 0) {
+              sURLVariables.splice(splice, 1);
+            }
+            history.pushState({}, "View Filter Change", window.location.pathname + '?' + sURLVariables.join('&'));
+        },
+    };
+}( jQuery ));
+
 
 /* Navigation */
 
