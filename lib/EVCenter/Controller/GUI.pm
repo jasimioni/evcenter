@@ -1,5 +1,6 @@
 package EVCenter::Controller::GUI;
 use Moose;
+use JSON::MaybeXS;
 use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
@@ -102,10 +103,54 @@ sub PopulateFilterData :Private {
 
     $ui_filters{select}{user}   = [ sort { $a->{filter_name} <=> $b->{filter_name} } @{$ui_filters{user}} ];
     $ui_filters{select}{group}  = [ sort { $a->{owner}       <=> $b->{owner} || 
-                                         $a->{filter_name} <=> $b->{filter_name} } @{$ui_filters{group}} ];
+                                           $a->{filter_name} <=> $b->{filter_name} } @{$ui_filters{group}} ];
     $ui_filters{select}{global} = [ sort { $a->{filter_name} <=> $b->{filter_name} } @{$ui_filters{global}} ];
 
     $c->session(ui_filters => \%ui_filters);
+}
+
+sub GetViewColumns :Local {
+    my ( $self, $c ) = @_;
+
+    # Get Field List from View
+    my $viewid = $c->req->param('viewid') // 0;
+
+    my $return = $c->forward('/Private/event/get_columns');
+    my $result = $return->{result};
+
+    if (! defined $result) {
+        die $return->{error}{message};
+    }
+
+    my $columns = $result->{columns};
+
+    my $view;
+    if (defined $c->session->{ui_views}{id}{$viewid}) {
+        eval {
+            $view = decode_json($c->session->{ui_views}{id}{$viewid}{view});
+        };
+    }
+
+    my $model = [];
+    my $names = [];
+    if (! defined $view) {
+        $names = $columns;
+        $model = [ map { { name => $_, index => $_, width => 150 } } @$columns ];
+    } else {
+        my %validColumns = map { $_ => 1 } @$columns;
+        foreach my $column (@{$view->{columns}}) {
+            next unless $validColumns{$column->{name}};
+            push @$names, $column->{name};
+            push @$model, { name => $column->{name}, index => $column->{name}, width => $column->{width} // 100 };
+        }
+    }
+
+    $c->stash(current_view => 'JSON');
+    $c->stash(jsonrpc_output => {
+            model => $model,
+            names => $names,
+            sort  => $view->{sort},
+        });
 }
 
 sub GetViewOptions :Local {

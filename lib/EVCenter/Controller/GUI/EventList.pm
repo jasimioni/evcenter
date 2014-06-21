@@ -48,6 +48,19 @@ sub RetrieveEvents :Local :Args(0) {
     my $suppfilter = $c->req->param('suppfilter');
     my $filterid   = $c->req->param('filterid');
     my $viewid     = $c->req->param('viewid');
+    my $columns    = [ $c->req->param('columns[]') ];
+    my $sort;
+    eval {
+        $sort = decode_json($c->req->param('sort'));
+    };
+    $sort = [ { '-desc' => 'severity' }, { '-asc' => 'serial' } ] if (! defined $sort);
+
+    use Data::Dumper;
+    $c->log->debug(Dumper $sort);
+
+    if (! @$columns) {
+        $columns = [ '*' ];
+    }
 
     my @filters;
     my $filter = $c->session->{ui_filters}{id}{$filterid}{filter};
@@ -69,9 +82,10 @@ sub RetrieveEvents :Local :Args(0) {
     }
 
     # In the future, I should change this forward to a CallWebServiceInternally Plugin
-    my $return = $c->forward('/Private/event/get', [ { columns => [ 'serial', 'severity', 'ack', '*' ],
-                                                       limit   => $c->req->param('limit'),
-                                                       filter  => { -and => \@filters },
+        my $return = $c->forward('/Private/event/get', [ { columns  => [ 'serial', 'severity', 'ack', @$columns ],
+                                                       limit    => $c->req->param('limit'),
+                                                       filter   => { -and => \@filters },
+                                                       order_by => $sort,
                                                      } ]);  
     my $result = $return->{result};
 
@@ -144,18 +158,6 @@ sub EventList :Path :Args(0) {
     if ($fullscreen eq 'yes') {
         $c->stash(current_view => 'HTMLBasic');
     }
-
-    # Get Field List from View
-    my $return = $c->forward('/Private/event/get_columns');
-    my $result = $return->{result};
-
-    if (! defined $result) {
-	    die $return->{error}{message};
-    }
-
-    my $columns = $result->{columns};
-
-    $c->stash(columns => $columns);
 }
 
 sub auto :Private {

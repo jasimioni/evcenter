@@ -49,112 +49,12 @@
 
 </style>
 
-<div id='evc-bot-filters' class='hidden'>
-  <button id="evc-btn-bot-clear" class="btn evc-btn-bot-filter evc-row-clear"></button>
-  <button id="evc-btn-bot-undetermined" class="btn evc-btn-bot-filter evc-row-undetermined"></button>
-  <button id="evc-btn-bot-warning" class="btn evc-btn-bot-filter evc-row-warning"></button>
-  <button id="evc-btn-bot-minor" class="btn evc-btn-bot-filter evc-row-minor"></button>
-  <button id="evc-btn-bot-major" class="btn evc-btn-bot-filter evc-row-major"></button>
-  <button id="evc-btn-bot-critical" class="btn evc-btn-bot-filter evc-row-critical"></button>
-  <button id="evc-btn-bot-all" class="btn evc-btn-bot-filter evc-row-all"></button>
-</div>
 
-<div id='evc-top-dialogs' class='hidden'>
-  <div class="btn-group" id='evc-filter-btn-grp'>
-    <button class="btn btn-xs btn-default dropdown-toggle" id="evc-filter-btn" data-toggle="dropdown">
-      <i class="fa fa-filter"></i> Filter: <span id='evc-filter-name'>[% gui.filtername %]</span>
-      <i class="fa fa-caret-down"></i>
-    </button>
-    <ul class="dropdown-menu dropdown-menu-large row" id='evc-filter-selector'>
-      <li class="col-sm-12">
-          <ul>
-              <li>
-                  <strong><em>Filter Selection:</em></strong>
-              </li>
-              <li>
-                  <select id='evc-filter-select'></select>
-              </li>
-              <li style='white-space: nowrap;'>
-                  <button class='btn btn-xs btn-primary' id='evc-filter-selected'>Select Filter</button>
-                  <button class='btn btn-xs btn-warning'>Edit Filter</button>
-              </li>
-          </ul>
-          <ul>
-              <li class='divider'></li>
-              <li>
-                  Add Custom Clause
-              </li>
-          </ul>
-      </li>
-    </ul>
-  </div>
-  <span class="h-separator"></span>
-  <div class="btn-group" id='evc-view-btn-grp'>
-    <button class="btn btn-xs btn-default dropdown-toggle" id="evc-view-btn" data-toggle="dropdown">
-      <i class="fa fa-view"></i> view: <span id='evc-view-name'>[% gui.viewname %]</span>
-      <i class="fa fa-caret-down"></i>
-    </button>
-    <ul class="dropdown-menu dropdown-menu-large row" id='evc-view-selector'>
-      <li class="col-sm-12">
-          <ul>
-              <li>
-                  <strong><em>View Selection:</em></strong>
-              </li>
-              <li>
-                  <select id='evc-view-select'></select>
-              </li>
-              <li style='white-space: nowrap;'>
-                  <button class='btn btn-xs btn-primary' id='evc-view-selected'>Select View</button>
-                  <button class='btn btn-xs btn-warning'>Edit View</button>
-              </li>
-          </ul>
-          <ul>
-              <li class='divider'></li>
-              <li>
-                  Add Custom Clause
-              </li>
-          </ul>
-      </li>
-    </ul>
-  </div>
-  <span class="h-separator"></span>
-  <div class="btn-group">
-    <button class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-      <i class="fa fa-check-circle-o"></i> Ack: <span id='evc-ack-sel'></span>
-      <i class="fa fa-caret-down"></i>
-    </button>
-    <ul class="dropdown-menu">
-      <li><a href="#" class='evc-filter-ack' value='all'>Show All</a></li>
-      <li><a href="#" class='evc-filter-ack' value='acked'>Only Acked</a></li>
-      <li><a href="#" class='evc-filter-ack' value='unacked'>Only Unacked</a></li>
-    </ul>
-  </div>
-  <span class="h-separator"></span>
-  <div class="btn-group">
-    <button class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-      <i class="fa fa-ban"></i> Suppression: <span id='evc-suppress-sel'></span>
-      <i class="fa fa-caret-down"></i>
-    </button>
-    <ul class="dropdown-menu">
-      <li><a href="#" class='evc-filter-suppress' value='all'>Show All</a></li>
-      <li><a href="#" class='evc-filter-suppress' value='suppressed'>Only Suppressed</a></li>
-      <li><a href="#" class='evc-filter-suppress' value='notsuppressed'>Only Not Suppressed</a></li>
-    </ul>
-  </div>
-  <span class="h-separator"></span>
-  <button class='btn btn-xs btn-default' style='margin-right: 10px;' data-toggle="tooltip" data-placement="top" title="Save Options" id='saveOptions'><i class='fa fa-save'></i></button>
-  <button class='btn btn-xs btn-default' style='margin-right: 10px;' data-toggle="tooltip" data-placement="top" title="Reload User Settings" id='reloadOptions'>
-    <i class='fa fa-undo'></i>
-  </button>
-</div>
-
-<div id="grid_container">
-    <table id="el"></table>
-    <div id="pager"></div>
-</div>
+<div id="grid_container"></div>
 
 
 <script>
+
   $(document).ready(function() {
     $('.btn').tooltip();
 
@@ -174,270 +74,388 @@
                      viewid:     '[% gui.viewid %]',
                    };
 
-    console.log(postData);
+    function setJQGrid() {
+      $('#grid_container').html('<table id="el"></table><div id="pager"></div>');
+      $('#grid_container').append('\
+<div id="evc-bot-filters" class="hidden">                                                                     \
+  <button id="evc-btn-bot-clear" class="btn evc-btn-bot-filter evc-row-clear"></button>                       \
+  <button id="evc-btn-bot-undetermined" class="btn evc-btn-bot-filter evc-row-undetermined"></button>         \
+  <button id="evc-btn-bot-warning" class="btn evc-btn-bot-filter evc-row-warning"></button>                   \
+  <button id="evc-btn-bot-minor" class="btn evc-btn-bot-filter evc-row-minor"></button>                       \
+  <button id="evc-btn-bot-major" class="btn evc-btn-bot-filter evc-row-major"></button>                       \
+  <button id="evc-btn-bot-critical" class="btn evc-btn-bot-filter evc-row-critical"></button>                 \
+  <button id="evc-btn-bot-all" class="btn evc-btn-bot-filter evc-row-all"></button>                           \
+</div>                                                                                                        \
+                                                                                                              \
+<div id="evc-top-dialogs" class="hidden">                                                                     \
+  <div class="btn-group" id="evc-filter-btn-grp">                                                             \
+    <button class="btn btn-xs btn-default dropdown-toggle" id="evc-filter-btn" data-toggle="dropdown">        \
+      <i class="fa fa-filter"></i> Filter: <span id="evc-filter-name">[% gui.filtername %]</span>             \
+      <i class="fa fa-caret-down"></i>                                                                        \
+    </button>                                                                                                 \
+    <ul class="dropdown-menu dropdown-menu-large row" id="evc-filter-selector">                               \
+      <li class="col-sm-12">                                                                                  \
+          <ul>                                                                                                \
+              <li>                                                                                            \
+                  <strong><em>Filter Selection:</em></strong>                                                 \
+              </li>                                                                                           \
+              <li>                                                                                            \
+                  <select id="evc-filter-select"></select>                                                    \
+              </li>                                                                                           \
+              <li style="white-space: nowrap;">                                                               \
+                  <button class="btn btn-xs btn-primary" id="evc-filter-selected">Select Filter</button>      \
+                  <button class="btn btn-xs btn-warning">Edit Filter</button>                                 \
+              </li>                                                                                           \
+          </ul>                                                                                               \
+          <ul>                                                                                                \
+              <li class="divider"></li>                                                                       \
+              <li>  \
+                  Add Custom Clause\
+              </li>\
+          </ul>\
+      </li>\
+    </ul>\
+  </div>\
+  <span class="h-separator"></span>\
+  <div class="btn-group" id="evc-view-btn-grp">\
+    <button class="btn btn-xs btn-default dropdown-toggle" id="evc-view-btn" data-toggle="dropdown">\
+      <i class="fa fa-view"></i> view: <span id="evc-view-name">[% gui.viewname %]</span>\
+      <i class="fa fa-caret-down"></i>\
+    </button>\
+    <ul class="dropdown-menu dropdown-menu-large row" id="evc-view-selector">\
+      <li class="col-sm-12">\
+          <ul>\
+              <li>\
+                  <strong><em>View Selection:</em></strong>\
+              </li>\
+              <li>\
+                  <select id="evc-view-select"></select>\
+              </li>\
+              <li style="white-space: nowrap;">\
+                  <button class="btn btn-xs btn-primary" id="evc-view-selected">Select View</button>\
+                  <button class="btn btn-xs btn-warning">Edit View</button>\
+              </li>\
+          </ul>\
+          <ul>\
+              <li class="divider"></li>\
+              <li>\
+                  Add Custom Clause\
+              </li>\
+          </ul>\
+      </li>\
+    </ul>\
+  </div>\
+  <span class="h-separator"></span>\
+  <div class="btn-group">\
+    <button class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">\
+      <i class="fa fa-check-circle-o"></i> Ack: <span id="evc-ack-sel"></span>\
+      <i class="fa fa-caret-down"></i>\
+    </button>\
+    <ul class="dropdown-menu">\
+      <li><a href="#" class="evc-filter-ack" value="all">Show All</a></li>\
+      <li><a href="#" class="evc-filter-ack" value="acked">Only Acked</a></li>\
+      <li><a href="#" class="evc-filter-ack" value="unacked">Only Unacked</a></li>\
+    </ul>\
+  </div>\
+  <span class="h-separator"></span>\
+  <div class="btn-group">\
+    <button class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">\
+      <i class="fa fa-ban"></i> Suppression: <span id="evc-suppress-sel"></span>\
+      <i class="fa fa-caret-down"></i>\
+    </button>\
+    <ul class="dropdown-menu">\
+      <li><a href="#" class="evc-filter-suppress" value="all">Show All</a></li>\
+      <li><a href="#" class="evc-filter-suppress" value="suppressed">Only Suppressed</a></li>\
+      <li><a href="#" class="evc-filter-suppress" value="notsuppressed">Only Not Suppressed</a></li>\
+    </ul>\
+  </div>\
+  <span class="h-separator"></span>\
+  <button class="btn btn-xs btn-default" style="margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="Save Options" id="saveOptions"><i class="fa fa-save"></i></button>\
+  <button class="btn btn-xs btn-default" style="margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="Reload User Settings" id="reloadOptions">\
+    <i class="fa fa-undo"></i>\
+  </button>\
+</div>');
 
-    [% FOR header IN columns %]
-      vColModel.push({ name: '[% header %]', index: '[% header %]', width: 150 });
-      colNames.push('[% header %]');
-    [% END %]
 
-    function setFiltersText() {
-      var ackfilter  = postData.ackfilter;
-      var suppfilter = postData.suppfilter;
-
-      var defval = 'Show All';
-      var ack = {
-        acked:   'Only Acked', 
-        unacked: 'Only Unacked'
-      };
-      var supp = {
-        suppressed:    'Only Suppressed',
-        notsuppressed: 'Only Not Suppressed'
-      }
-      $('#evc-ack-sel').html(ack[ackfilter] || defval);
-      $('#evc-suppress-sel').html(supp[suppfilter] || defval);
-    }
-
-    setFiltersText();
-
-    $('.evc-filter-suppress').click(function(ev) {
-      ev.preventDefault();
-      postData.suppfilter = $(this).attr('value');
-      $.urlparms.add('suppfilter', postData.suppfilter);
-      setFiltersText();
-      reloadGrid();
-    });
-
-    $('.evc-filter-ack').click(function(ev) {
-      ev.preventDefault();
-      postData.ackfilter = $(this).attr('value');
-      $.urlparms.add('ackfilter', postData.ackfilter);
-      setFiltersText();
-      reloadGrid();
-    });
-
-    $('#saveOptions').click(function(ev) {
-      ev.preventDefault();
       $.ajax({
         type: 'POST',
-        data: postData,
-        url: '[% c.uri_for('SaveOptions') %]',
-        error: function() { noty({text: 'Failed to save options - no answer from server', type:'error', timeout: 1000 }); },
-        success: function(data) { 
-          if (data.error) {
-            noty({text: 'Failed to save options: ' + data.error.message , type:'error', timeout: 1000 });
-          } else {
-            noty({text: 'Options Saved' , type:'success', timeout: 1000 });
-          }
-        }
-      });
-    });
-
-    /* Controls the Filter Menu Display */
-
-    $('#evc-filter-btn-grp').on('show.bs.dropdown', function() {
-      var html = $('#evc-filter-selector').html();
-      $('#evc-filter-selector').html('<div class="center"><img width="20%" height="20%" src="[% c.uri_for('/static/img/loading.gif') %]" /></div>');
-
-      $.ajax({
-        type: 'POST',
-        url: '[% c.uri_for('/GUI/GetFilterOptions') %]',
-        error: function() { noty({text: 'Failed to get ui filters no answer from server', type:'error', timeout: 1000 }); },
+        url: '[% c.uri_for('/GUI/GetViewColumns') %]',
+        data: { viewid: postData.viewid },
+        error: function() { noty({text: 'Failed to get view columns - no answer from server', type:'error', timeout: 1000 }); },
         success: function(data) { 
           if (data.error) {
             noty({text: 'Failed to get ui filters: ' + data.error.message , type:'error', timeout: 1000 });
           } else {
-            $('#evc-filter-selector').html(html);
-            $('#evc-filter-select').html('');
-            $('#evc-filter-select').append("<option desc='No Filter' value='0'>No Filter</option>");
-            $.each(data.user, function(index, value) {
-              $('#evc-filter-select').append("<option desc='" + value.filter_name + "' value='" + value.filter_id + "'>User: " + value.filter_name + "</option>");
-            });
-            $.each(data.group, function(index, value) {
-              $('#evc-filter-select').append("<option desc='" + value.filter_name + "' value='" + value.filter_id + "'>Group (" + value.owner + "): " + value.filter_name + "</option>");
-            });
-            $.each(data.global, function(index, value) {
-              $('#evc-filter-select').append("<option desc='" + value.filter_name + "' value='" + value.filter_id + "'>Global: " + value.filter_name + "</option>");
-            });
-            $('#evc-filter-select option[value=' + postData.filterid + ']').attr('selected', 'selected')
+            vColModel        = data.model;
+            colNames         = data.names;
+            postData.columns = data.names;
+            postData.sort    = JSON.stringify(data.sort);
 
-            $('#evc-filter-selected').click(function() {
-              postData.filterid = $('#evc-filter-select :selected').val();
-              $.urlparms.add('filterid', postData.filterid);
-              $('#evc-filter-name').html($('#evc-filter-select :selected').attr('desc'));
-              reloadGrid();
-              $('#evc-filter-selector').dropdown('toggle');
-              console.log(postData);
+            $("#el").jqGrid({
+              url: '[% c.uri_for('RetrieveEvents') %]',
+              datatype: 'json',
+              mtype: 'POST',
+              postData: postData,
+              colNames: colNames,
+              colModel : vColModel,
+              pager: '#pager',
+              rowNum: 0,
+              rowList:[],
+              pgbuttons: false,
+              pgtext: null,
+              viewrecords: true,
+              sortname: 'serial',
+              sortorder: 'desc',
+              gridview: true,
+              caption: 'Event List',
+              autowidth: true,
+              multiselect: true,
+              toolbar: [ true, "both" ],
+              height: $(window).height() - 153 - $('#grid_container').offset().top,
+              autoencode: true,
+              beforeSelectRow: handleMultiSelect,
+              beforeProcessing: beforeProcessingFn,
+              gridComplete: gridCompleteFn,
+              loadComplete: loadCompleteFn,
+              loadError: loadErrorFn
             });
+
+            $('#el').navGrid('#pager', { edit:false, view:false, add:false, del:false, search:false,
+                                         beforeRefresh: function() { scrollPosition = $('#el').closest(".ui-jqgrid-bdiv").scrollTop(); },
+                                         afterRefresh:  function() { $('#el').closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition); } 
+                                       }, { id: 'myedit' });
+
+            // Top Combos (Filter / View) + Quick Filters
+            $('#t_el').append($('#evc-top-dialogs'));
+
+            // Bottom filters (Severity)
+            $("#tb_el").append($('#evc-bot-filters'));
+
           }
         }
       });
-    });
 
-    $('#evc-filter-selector').click(function(ev) {
-      ev.stopImmediatePropagation();
-    });
+      function setFiltersText() {
+        var ackfilter  = postData.ackfilter;
+        var suppfilter = postData.suppfilter;
 
-    /* Controls the View Menu Display */
+        var defval = 'Show All';
+        var ack = {
+          acked:   'Only Acked', 
+          unacked: 'Only Unacked'
+        };
+        var supp = {
+          suppressed:    'Only Suppressed',
+          notsuppressed: 'Only Not Suppressed'
+        }
+        $('#evc-ack-sel').html(ack[ackfilter] || defval);
+        $('#evc-suppress-sel').html(supp[suppfilter] || defval);
+      }
 
-    $('#evc-view-btn-grp').on('show.bs.dropdown', function() {
-      var html = $('#evc-view-selector').html();
-      $('#evc-view-selector').html('<div class="center"><img width="20%" height="20%" src="[% c.uri_for('/static/img/loading.gif') %]" /></div>');
+      function reloadGrid() {
+        scrollPosition = $('#el').closest(".ui-jqgrid-bdiv").scrollTop();
+        $('#el').setGridParam({ postData: postData });
+        $("#el").trigger("reloadGrid"); 
+      }
 
-      $.ajax({
-        type: 'POST',
-        url: '[% c.uri_for('/GUI/GetViewOptions') %]',
-        error: function() { noty({text: 'Failed to get ui views no answer from server', type:'error', timeout: 1000 }); },
-        success: function(data) { 
-          if (data.error) {
-            noty({text: 'Failed to get ui views: ' + data.error.message , type:'error', timeout: 1000 });
-          } else {
-            $('#evc-view-selector').html(html);
-            $('#evc-view-select').html('');
-            $('#evc-view-select').append("<option desc='All Fields' value='0'>All Fields</option>");
-            $.each(data.user, function(index, value) {
-              $('#evc-view-select').append("<option desc='" + value.view_name + "' value='" + value.view_id + "'>User: " + value.view_name + "</option>");
-            });
-            $.each(data.group, function(index, value) {
-              $('#evc-view-select').append("<option desc='" + value.view_name + "' value='" + value.view_id + "'>Group (" + value.owner + "): " + value.view_name + "</option>");
-            });
-            $.each(data.global, function(index, value) {
-              $('#evc-view-select').append("<option desc='" + value.view_name + "' value='" + value.view_id + "'>Global: " + value.view_name + "</option>");
-            });
-            $('#evc-view-select option[value=' + postData.viewid + ']').attr('selected', 'selected')
+      /* Controls the Filter Menu Display */
 
-            $('#evc-view-selected').click(function() {
-              postData.viewid = $('#evc-view-select :selected').val();
-              $.urlparms.add('viewid', postData.viewid);
-              $('#evc-view-name').html($('#evc-view-select :selected').attr('desc'));
-              reloadGrid();
-              $('#evc-view-selector').dropdown('toggle');
-              console.log(postData);
-            });
+      $('#evc-filter-btn-grp').on('show.bs.dropdown', function() {
+        var html = $('#evc-filter-selector').html();
+        $('#evc-filter-selector').html('<div class="center"><img width="20%" height="20%" src="[% c.uri_for('/static/img/loading.gif') %]" /></div>');
+
+        $.ajax({
+          type: 'POST',
+          url: '[% c.uri_for('/GUI/GetFilterOptions') %]',
+          error: function() { noty({text: 'Failed to get ui filters no answer from server', type:'error', timeout: 1000 }); },
+          success: function(data) { 
+            if (data.error) {
+              noty({text: 'Failed to get ui filters: ' + data.error.message , type:'error', timeout: 1000 });
+            } else {
+              $('#evc-filter-selector').html(html);
+              $('#evc-filter-select').html('');
+              $('#evc-filter-select').append("<option desc='No Filter' value='0'>No Filter</option>");
+              $.each(data.user, function(index, value) {
+                $('#evc-filter-select').append("<option desc='" + value.filter_name + "' value='" + value.filter_id + "'>User: " + value.filter_name + "</option>");
+              });
+              $.each(data.group, function(index, value) {
+                $('#evc-filter-select').append("<option desc='" + value.filter_name + "' value='" + value.filter_id + "'>Group (" + value.owner + "): " + value.filter_name + "</option>");
+              });
+              $.each(data.global, function(index, value) {
+                $('#evc-filter-select').append("<option desc='" + value.filter_name + "' value='" + value.filter_id + "'>Global: " + value.filter_name + "</option>");
+              });
+              $('#evc-filter-select option[value=' + postData.filterid + ']').attr('selected', 'selected')
+
+              $('#evc-filter-selected').click(function() {
+                postData.filterid = $('#evc-filter-select :selected').val();
+                $.urlparms.add('filterid', postData.filterid);
+                $('#evc-filter-name').html($('#evc-filter-select :selected').attr('desc'));
+                reloadGrid();
+                $('#evc-filter-selector').dropdown('toggle');
+                console.log(postData);
+              });
+            }
           }
+        });
+      });
+
+      $('#evc-filter-selector').click(function(ev) {
+        ev.stopImmediatePropagation();
+      });
+
+      /* Controls the View Menu Display */
+
+      $('#evc-view-btn-grp').on('show.bs.dropdown', function() {
+        var html = $('#evc-view-selector').html();
+        $('#evc-view-selector').html('<div class="center"><img width="20%" height="20%" src="[% c.uri_for('/static/img/loading.gif') %]" /></div>');
+
+        $.ajax({
+          type: 'POST',
+          url: '[% c.uri_for('/GUI/GetViewOptions') %]',
+          error: function() { noty({text: 'Failed to get ui views no answer from server', type:'error', timeout: 1000 }); },
+          success: function(data) { 
+            if (data.error) {
+              noty({text: 'Failed to get ui views: ' + data.error.message , type:'error', timeout: 1000 });
+            } else {
+              $('#evc-view-selector').html(html);
+              $('#evc-view-select').html('');
+              $('#evc-view-select').append("<option desc='All Fields' value='0'>All Fields</option>");
+              $.each(data.user, function(index, value) {
+                $('#evc-view-select').append("<option desc='" + value.view_name + "' value='" + value.view_id + "'>User: " + value.view_name + "</option>");
+              });
+              $.each(data.group, function(index, value) {
+                $('#evc-view-select').append("<option desc='" + value.view_name + "' value='" + value.view_id + "'>Group (" + value.owner + "): " + value.view_name + "</option>");
+              });
+              $.each(data.global, function(index, value) {
+                $('#evc-view-select').append("<option desc='" + value.view_name + "' value='" + value.view_id + "'>Global: " + value.view_name + "</option>");
+              });
+              $('#evc-view-select option[value=' + postData.viewid + ']').attr('selected', 'selected')
+
+              $('#evc-view-selected').click(function() {
+                postData.viewid = $('#evc-view-select :selected').val();
+                $.urlparms.add('viewid', postData.viewid);
+                $('#evc-view-name').html($('#evc-view-select :selected').attr('desc'));
+                $('#evc-view-selector').dropdown('toggle');
+                setJQGrid();
+                reloadGrid();
+              });
+            }
+          }
+        });
+      });
+
+      $('#evc-view-selector').click(function(ev) {
+        ev.stopImmediatePropagation();
+      });
+
+      console.log($('#evc-bot-filters'));
+      console.log(colNames);
+
+      setFiltersText();
+
+      $('.evc-filter-suppress').click(function(ev) {
+        ev.preventDefault();
+        postData.suppfilter = $(this).attr('value');
+        $.urlparms.add('suppfilter', postData.suppfilter);
+        setFiltersText();
+        reloadGrid();
+      });
+
+      $('.evc-filter-ack').click(function(ev) {
+        ev.preventDefault();
+        postData.ackfilter = $(this).attr('value');
+        $.urlparms.add('ackfilter', postData.ackfilter);
+        setFiltersText();
+        reloadGrid();
+      });
+
+      $('#saveOptions').click(function(ev) {
+        ev.preventDefault();
+        $.ajax({
+          type: 'POST',
+          data: postData,
+          url: '[% c.uri_for('SaveOptions') %]',
+          error: function() { noty({text: 'Failed to save options - no answer from server', type:'error', timeout: 1000 }); },
+          success: function(data) { 
+            if (data.error) {
+              noty({text: 'Failed to save options: ' + data.error.message , type:'error', timeout: 1000 });
+            } else {
+              noty({text: 'Options Saved' , type:'success', timeout: 1000 });
+            }
+          }
+        });
+      });
+
+      function colorize_rows(ctrlrows) {
+        for (i = 0; i < ctrlrows.length; i++) {
+          rowinfo = ctrlrows[i];
+          rowclass = SeverityClass[rowinfo.severity];
+          if (rowinfo.ack > 0) {
+            rowclass += '-ack';
+          }
+          $('#' + rowinfo.serial).addClass(rowclass);
+        }
+      }
+
+      function update_severity_filters(data) {
+        $('#evc-btn-bot-clear').html(data.sevcount.clear);
+        $('#evc-btn-bot-undetermined').html(data.sevcount.undetermined);
+        $('#evc-btn-bot-warning').html(data.sevcount.warning);
+        $('#evc-btn-bot-minor').html(data.sevcount.minor);
+        $('#evc-btn-bot-major').html(data.sevcount.major);
+        $('#evc-btn-bot-critical').html(data.sevcount.critical);
+        $('#evc-btn-bot-all').html('All: ' + data.records);
+
+      }
+
+      var handleMultiSelect  = function() {};
+      var loadErrorFn        = function(xhr, status, error) { 
+        noty({text: 'Error loading events: ' + xhr.responseJSON.error, type:'error', timeout: 3000 });
+      };
+      var beforeProcessingFn = function(data) {};
+      var gridCompleteFn     = function() {
+        $("#el").closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition);
+      };
+      var loadCompleteFn     = function(data) { 
+        colorize_rows(data.ctrlrows);
+        if (bottomFilterSelected != 'all') {
+          $('tr.jqgrow').hide();
+          $('tr.evc-row-' + bottomFilterSelected).show();
+          $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
+        }
+        update_severity_filters(data);
+      };
+
+      $('.evc-btn-bot-filter').click(function() {
+        bottomFilterSelected = $(this).attr('id').replace(/evc-btn-bot-/, '');
+        if (bottomFilterSelected == 'all') {
+          $('tr.jqgrow').show();
+        } else {
+          $('tr.jqgrow').hide();
+          $('tr.evc-row-' + bottomFilterSelected).show();
+          $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
         }
       });
-    });
 
-    $('#evc-view-selector').click(function(ev) {
-      ev.stopImmediatePropagation();
-    });
+      // Replace top right button to 'New Window' button
+      $('.ui-jqgrid-titlebar-close > span').removeClass('ui-icon-circle-triangle-n').addClass('ui-icon-newwin');
+      $('.ui-jqgrid-titlebar-close').off('click').click(function(ev) {
+        window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]&ackfiler=' 
+                    + postData.ackfilter + '&suppfilter=' + postData.suppfilter + '&filterid='
+                    + postData.filterid  + '&viewid=' + postData.viewid, '_blank');
+      });
 
+      // Fix Grid Size on Resize
+      $(window).bind('resize', function() {
+        $('#el').setGridWidth($('#grid_container').width(), true);
+        $('#el').setGridHeight($(window).height() - 153 - $('#grid_container').offset().top);
+      }).trigger('resize');
 
-    function colorize_rows(ctrlrows) {
-      for (i = 0; i < ctrlrows.length; i++) {
-        rowinfo = ctrlrows[i];
-        rowclass = SeverityClass[rowinfo.severity];
-        if (rowinfo.ack > 0) {
-          rowclass += '-ack';
-        }
-        $('#' + rowinfo.serial).addClass(rowclass);
-      }
+      $('#evc-top-dialogs').removeClass('hidden');
+      $('#evc-bot-filters').removeClass('hidden');
     }
 
-    function update_severity_filters(data) {
-      $('#evc-btn-bot-clear').html(data.sevcount.clear);
-      $('#evc-btn-bot-undetermined').html(data.sevcount.undetermined);
-      $('#evc-btn-bot-warning').html(data.sevcount.warning);
-      $('#evc-btn-bot-minor').html(data.sevcount.minor);
-      $('#evc-btn-bot-major').html(data.sevcount.major);
-      $('#evc-btn-bot-critical').html(data.sevcount.critical);
-      $('#evc-btn-bot-all').html('All: ' + data.records);
-
-    }
-
-    function reloadGrid() {
-      scrollPosition = $('#el').closest(".ui-jqgrid-bdiv").scrollTop();
-      $('#el').setGridParam({ postData: postData });
-      $("#el").trigger("reloadGrid"); 
-    }
-
-
-    var handleMultiSelect  = function() {};
-    var loadErrorFn        = function(xhr, status, error) { 
-      noty({text: 'Error loading events: ' + xhr.responseJSON.error, type:'error', timeout: 3000 });
-    };
-    var beforeProcessingFn = function(data) {};
-    var gridCompleteFn     = function() {
-      $("#el").closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition);
-    };
-    var loadCompleteFn     = function(data) { 
-      colorize_rows(data.ctrlrows);
-      if (bottomFilterSelected != 'all') {
-        $('tr.jqgrow').hide();
-        $('tr.evc-row-' + bottomFilterSelected).show();
-        $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
-      }
-      update_severity_filters(data);
-    };
-
-    $("#el").jqGrid({
-      url: '[% c.uri_for('RetrieveEvents') %]',
-      datatype: 'json',
-      mtype: 'POST',
-      postData: postData,
-      colNames: colNames,
-      colModel : vColModel,
-      pager: '#pager',
-      rowNum: 0,
-      rowList:[],
-      pgbuttons: false,
-      pgtext: null,
-      viewrecords: true,
-      sortname: 'serial',
-      sortorder: 'desc',
-      gridview: true,
-      caption: 'Event List',
-      autowidth: true,
-      multiselect: true,
-      toolbar: [ true, "both" ],
-      height: $(window).height() - 153 - $('#grid_container').offset().top,
-      autoencode: true,
-      beforeSelectRow: handleMultiSelect,
-      beforeProcessing: beforeProcessingFn,
-      gridComplete: gridCompleteFn,
-      loadComplete: loadCompleteFn,
-      loadError: loadErrorFn
-    });
-
-    $('#el').navGrid('#pager', { edit:false, view:false, add:false, del:false, search:false,
-                                 beforeRefresh: function() { scrollPosition = $('#el').closest(".ui-jqgrid-bdiv").scrollTop(); },
-                                 afterRefresh:  function() { $('#el').closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition); } 
-                               }, { id: 'myedit' });
-
-    // Top Combos (Filter / View) + Quick Filters
-
-    $('#t_el').append($('#evc-top-dialogs'));
-    $('#evc-top-dialogs').removeClass('hidden');
-
-    // Bottom filters (Severity)
-    $("#tb_el").append($('#evc-bot-filters'));
-    $('#evc-bot-filters').removeClass('hidden');
-
-    $('.evc-btn-bot-filter').click(function() {
-      bottomFilterSelected = $(this).attr('id').replace(/evc-btn-bot-/, '');
-      if (bottomFilterSelected == 'all') {
-        $('tr.jqgrow').show();
-      } else {
-        $('tr.jqgrow').hide();
-        $('tr.evc-row-' + bottomFilterSelected).show();
-        $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
-      }
-    });
-
-    // Replace top right button to 'New Window' button
-    $('.ui-jqgrid-titlebar-close > span').removeClass('ui-icon-circle-triangle-n').addClass('ui-icon-newwin');
-    $('.ui-jqgrid-titlebar-close').off('click').click(function(ev) {
-      window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]&ackfiler=' 
-                  + postData.ackfilter + '&suppfilter=' + postData.suppfilter + '&filterid='
-                  + postData.filterid  + '&viewid=' + postData.viewid, '_blank');
-    });
-
-    // Fix Grid Size on Resize
-    $(window).bind('resize', function() {
-      $('#el').setGridWidth($('#grid_container').width(), true);
-      $('#el').setGridHeight($(window).height() - 153 - $('#grid_container').offset().top);
-    }).trigger('resize');
+    setJQGrid();
 
 
 
