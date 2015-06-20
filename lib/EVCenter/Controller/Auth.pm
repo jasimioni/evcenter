@@ -66,6 +66,7 @@ sub calculate_permissions :Private {
 
     use Data::Dumper;
     $c->log->debug("SQL Restriction Filter: " . Dumper $c->session->{srf});
+    $c->log->debug("Access Control List: " . Dumper $c->session->{acl});
     $c->log->debug("Details: " . Dumper $c->session->{user_details});
     $c->log->debug("Groups: " . Dumper $c->session->{user_groups});
     $c->log->debug("UI Filters: " . Dumper $c->session->{ui_filters});

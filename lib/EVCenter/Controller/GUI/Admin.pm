@@ -1,6 +1,7 @@
 package EVCenter::Controller::GUI::Admin;
 use Moose;
 use namespace::autoclean;
+use utf8;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -23,6 +24,12 @@ Catalyst Controller.
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
+}
+
+sub Users :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+
 }
 
 sub auto :Private {

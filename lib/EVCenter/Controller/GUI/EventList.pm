@@ -49,11 +49,23 @@ sub RetrieveEvents :Local :Args(0) {
     my $filterid   = $c->req->param('filterid');
     my $viewid     = $c->req->param('viewid');
     my $columns    = [ $c->req->param('columns[]') ];
-    my $sort;
-    eval {
-        $sort = decode_json($c->req->param('sort'));
-    };
-    $sort = [ { '-desc' => 'severity' }, { '-asc' => 'serial' } ] if (! defined $sort);
+
+    my $sord       = $c->req->param('sord');
+    my $sidx       = $c->req->param('sidx');
+
+    # This is how jqGrid works. It sends 2 variables to sort, one with fields (sidx)
+    # and one with order (sord). But to support multisort, sidx contains more values
+    # so we need to concatenate and then parse.
+    $sidx .= " $sord";
+
+    my $sort = [];
+    foreach my $sort_element (split(/,\s*/, $sidx)) {
+        my ($field, $order) = split(/\s+/, $sort_element);
+        next if ($order ne 'asc' && $order ne 'desc');
+        push @$sort, { "-$order" => $field };
+    }
+
+    $sort = [ { '-desc' => 'severity' }, { '-desc' => 'serial' } ] if (! @$sort);
 
     use Data::Dumper;
     $c->log->debug(Dumper $sort);
@@ -138,6 +150,7 @@ sub EventList :Path :Args(0) {
     my $suppfilter = $c->req->param('suppfilter') // $c->session->{user_details}{postData}{suppfilter};
     my $filterid   = $c->req->param('filterid')   // $c->session->{user_details}{postData}{filterid} || 0;
     my $viewid     = $c->req->param('viewid')     // $c->session->{user_details}{postData}{viewid} || 0;
+    my $rowfilter  = $c->req->param('rowfilter');
 
     # Populates the list of filters and Views the user has available to him
     # This is intended to update the filter and view list on the first load 
@@ -152,6 +165,7 @@ sub EventList :Path :Args(0) {
         viewid     => $viewid,
         filtername => $c->session->{ui_filters}{id}{$filterid}{filter_name} // 'Filter ID Not Defined',
         viewname   => $c->session->{ui_views}{id}{$viewid}{view_name}       // 'View ID Not Defined',
+        rowfilter  => $rowfilter,
     };
 
     my $fullscreen = $c->req->param('fullscreen');

@@ -1,0 +1,68 @@
+<div class="widget wgreen">
+
+    <div class="widget-head">
+        User Administration
+    </div>
+
+    <div class="widget-content">
+        <div class="padd">
+
+            <form class="form-inline" role="form">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="newuser" placeholder="New User">
+                </div>
+                <button type="submit" class="btn btn-primary">Add New User</button>
+            </form>
+
+            <hr />
+
+            <div class='row'>
+                <div class='col-xs-12'>
+                    <form role="form">
+                        <div class="form-group">
+                            <div class='pull-right'>
+                                <input type='text' class='form-control input-sm' style='margin-top: -5px;' placeholder="Filter...">
+                            </div>
+                            <div class='clearfix'>
+                            <label for="user">Pick a user to edit</label>
+                            <select name="user" id="user" size="4" class="form-control">
+                                <option>John</option>
+                                <option>Paul</option>
+                                <option>Ringo</option>
+                                <option>George</option>
+                                <option>John</option>
+                                <option>Paul</option>
+                                <option>Ringo</option>
+                                <option>George</option>
+                            </select>                    
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<h1>User Administration</h1>
+
+[% IF ! user_id %]
+<h2>Pick a user to edit</h2>
+or <input type='text' placeholder='New User...'><button>Add New User</button>
+
+<select>
+    [% FOREACH user IN users.keys.sort %]
+        <option value='[% user %]'>[% user _ ' - ' _ users.$user.name %]</option>
+    [% END %]
+</select>
+<button>Edit</button><input type='text' placeholder='Filter...'>
+[% END %]

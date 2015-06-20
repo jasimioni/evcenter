@@ -199,8 +199,12 @@ sub auto :Private {
             id     => 'admin',
             submenu => [
                 {
-                    name => 'Users and Groups',
+                    name => 'Users',
                     link => $c->uri_for('/GUI/Admin/Users')
+                },
+                {
+                    name => 'Groups',
+                    link => $c->uri_for('/GUI/Admin/Groups')
                 },
                 {
                     name => 'Roles',

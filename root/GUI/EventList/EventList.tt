@@ -52,7 +52,6 @@
 
 <div id="grid_container"></div>
 
-
 <script>
 
   $(document).ready(function() {
@@ -67,6 +66,7 @@
     var ctrlrows;
     var colNames = [];
     var bottomFilterSelected = 'all';
+    var rowfilter = '[% IF gui.rowfilter; gui.rowfilter; END %]';
     var postData = { limit:      250, 
                      ackfilter:  '[% gui.ackfilter %]', 
                      suppfilter: '[% gui.suppfilter %]', 
@@ -107,12 +107,6 @@
                   <button class="btn btn-xs btn-warning">Edit Filter</button>                                 \
               </li>                                                                                           \
           </ul>                                                                                               \
-          <ul>                                                                                                \
-              <li class="divider"></li>                                                                       \
-              <li>  \
-                  Add Custom Clause\
-              </li>\
-          </ul>\
       </li>\
     </ul>\
   </div>\
@@ -134,12 +128,6 @@
               <li style="white-space: nowrap;">\
                   <button class="btn btn-xs btn-primary" id="evc-view-selected">Select View</button>\
                   <button class="btn btn-xs btn-warning">Edit View</button>\
-              </li>\
-          </ul>\
-          <ul>\
-              <li class="divider"></li>\
-              <li>\
-                  Add Custom Clause\
               </li>\
           </ul>\
       </li>\
@@ -174,8 +162,20 @@
   <button class="btn btn-xs btn-default" style="margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="Reload User Settings" id="reloadOptions">\
     <i class="fa fa-undo"></i>\
   </button>\
+  <form class="form-inline pull-right" role="form" style="display: inline; margin-right: 10px;" id="evc-form-filter-rows"> \
+    <input id="evc-filter-rows" style="height: 22px; width: 100px;" type="text" class="form-control" placeholder="filter..."[% IF gui.rowfilter %] value="[% gui.rowfilter; END %]">\
+  </form>  \
 </div>');
 
+
+      $('#evc-form-filter-rows').submit(function(ev) {
+        ev.preventDefault();
+      });
+      $('#evc-filter-rows').change(function() {
+        rowfilter = $('#evc-filter-rows').val();
+        $.urlparms.add('rowfilter', rowfilter);
+        reloadGrid();
+      });
 
       $.ajax({
         type: 'POST',
@@ -189,7 +189,25 @@
             vColModel        = data.model;
             colNames         = data.names;
             postData.columns = data.names;
-            postData.sort    = JSON.stringify(data.sort);
+            var sortname  = '';
+            var sortorder = '';
+
+            if (data.sort) {
+              for (var i = 0; i < data.sort.length; i++) {
+                if (i == data.sort.length - 1) {
+                  sortname += data.sort[i].field;
+                  sortorder = data.sort[i].order;
+                } else {
+                  sortname  += data.sort[i].field + ' ' + data.sort[i].order + ', ';
+                }
+              }
+            }
+
+            // Fallback if no sort defined
+            if (sortname == '') {
+              sortname  = 'severity desc, serial';
+              sortorder = 'desc';
+            }
 
             $("#el").jqGrid({
               url: '[% c.uri_for('RetrieveEvents') %]',
@@ -204,8 +222,8 @@
               pgbuttons: false,
               pgtext: null,
               viewrecords: true,
-              sortname: 'serial',
-              sortorder: 'desc',
+              sortname: sortname,
+              sortorder: sortorder,
               gridview: true,
               caption: 'Event List',
               autowidth: true,
@@ -213,6 +231,7 @@
               toolbar: [ true, "both" ],
               height: $(window).height() - 153 - $('#grid_container').offset().top,
               autoencode: true,
+              multiSort: true,
               beforeSelectRow: handleMultiSelect,
               beforeProcessing: beforeProcessingFn,
               gridComplete: gridCompleteFn,
@@ -231,6 +250,24 @@
             // Bottom filters (Severity)
             $("#tb_el").append($('#evc-bot-filters'));
 
+            $('.evc-btn-bot-filter').click(function() {
+              bottomFilterSelected = $(this).attr('id').replace(/evc-btn-bot-/, '');
+              if (bottomFilterSelected == 'all') {
+                $('tr.jqgrow').show();
+              } else {
+                $('tr.jqgrow').hide();
+                $('tr.evc-row-' + bottomFilterSelected).show();
+                $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
+              }
+            });
+
+            // Replace top right button to 'New Window' button
+            $('.ui-jqgrid-titlebar-close > span').removeClass('ui-icon-circle-triangle-n').addClass('ui-icon-newwin');
+            $('.ui-jqgrid-titlebar-close').off('click').click(function(ev) {
+              window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]&ackfilter=' 
+                          + postData.ackfilter + '&suppfilter=' + postData.suppfilter + '&filterid='
+                          + postData.filterid  + '&viewid=' + postData.viewid + '&rowfilter=' + rowfilter, '_blank');
+            });
           }
         }
       });
@@ -334,9 +371,10 @@
               $('#evc-view-selected').click(function() {
                 postData.viewid = $('#evc-view-select :selected').val();
                 $.urlparms.add('viewid', postData.viewid);
-                $('#evc-view-name').html($('#evc-view-select :selected').attr('desc'));
                 $('#evc-view-selector').dropdown('toggle');
+                var desc = $('#evc-view-select :selected').attr('desc');
                 setJQGrid();
+                $('#evc-view-name').html(desc);
                 reloadGrid();
               });
             }
@@ -347,9 +385,6 @@
       $('#evc-view-selector').click(function(ev) {
         ev.stopImmediatePropagation();
       });
-
-      console.log($('#evc-bot-filters'));
-      console.log(colNames);
 
       setFiltersText();
 
@@ -397,6 +432,17 @@
         }
       }
 
+      function filter_rows(ctrlrows) {
+        var patt = new RegExp(rowfilter, 'i');
+        for (i = 0; i < ctrlrows.length; i++) {
+          serial  = ctrlrows[i].serial;
+          if (! patt.test($('#' + serial).html())) {
+            $('#' + serial).addClass('hidden');
+          }
+        }
+      }
+
+
       function update_severity_filters(data) {
         $('#evc-btn-bot-clear').html(data.sevcount.clear);
         $('#evc-btn-bot-undetermined').html(data.sevcount.undetermined);
@@ -415,9 +461,14 @@
       var beforeProcessingFn = function(data) {};
       var gridCompleteFn     = function() {
         $("#el").closest(".ui-jqgrid-bdiv").scrollTop(scrollPosition);
+
       };
       var loadCompleteFn     = function(data) { 
+        console.log(data);
         colorize_rows(data.ctrlrows);
+        if (rowfilter != '') {
+          filter_rows(data.ctrlrows);
+        }
         if (bottomFilterSelected != 'all') {
           $('tr.jqgrow').hide();
           $('tr.evc-row-' + bottomFilterSelected).show();
@@ -425,25 +476,6 @@
         }
         update_severity_filters(data);
       };
-
-      $('.evc-btn-bot-filter').click(function() {
-        bottomFilterSelected = $(this).attr('id').replace(/evc-btn-bot-/, '');
-        if (bottomFilterSelected == 'all') {
-          $('tr.jqgrow').show();
-        } else {
-          $('tr.jqgrow').hide();
-          $('tr.evc-row-' + bottomFilterSelected).show();
-          $('tr.evc-row-' + bottomFilterSelected + '-ack').show();
-        }
-      });
-
-      // Replace top right button to 'New Window' button
-      $('.ui-jqgrid-titlebar-close > span').removeClass('ui-icon-circle-triangle-n').addClass('ui-icon-newwin');
-      $('.ui-jqgrid-titlebar-close').off('click').click(function(ev) {
-        window.open('[% c.uri_for('/GUI/EventList', { fullscreen => "yes" }) %]&ackfiler=' 
-                    + postData.ackfilter + '&suppfilter=' + postData.suppfilter + '&filterid='
-                    + postData.filterid  + '&viewid=' + postData.viewid, '_blank');
-      });
 
       // Fix Grid Size on Resize
       $(window).bind('resize', function() {
@@ -456,8 +488,5 @@
     }
 
     setJQGrid();
-
-
-
   });
 </script>
