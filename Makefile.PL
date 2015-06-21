@@ -15,6 +15,7 @@ requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Plugin::Server::JSONRPC';
 requires 'Catalyst::Action::RenderView';
 requires 'Moose';
+requires 'common::sense';
 requires 'namespace::autoclean';
 requires 'Config::General'; # This should reflect the config file format you've chosen
                  # See Catalyst::Plugin::ConfigLoader for supported formats
@@ -24,6 +25,11 @@ requires 'Catalyst::Plugin::Unicode';
 requires 'Catalyst::View::TT';
 requires 'Catalyst::Authentication::Store::DBIx::Class';
 requires 'Catalyst::Plugin::Compress';
+requires 'Catalyst::Plugin::Session::Store::File';
+requires 'Catalyst::Plugin::Session::State::Stash';
+requires 'Catalyst::Model::Adaptor';
+requires 'Catalyst::View::JSON';
+requires 'DBD::Pg';
 
 requires 'DBIx::Connector';
 requires 'SQL::Abstract::More';
