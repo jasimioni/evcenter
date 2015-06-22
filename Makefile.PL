@@ -30,6 +30,7 @@ requires 'Catalyst::Plugin::Session::State::Stash';
 requires 'Catalyst::Model::Adaptor';
 requires 'Catalyst::View::JSON';
 requires 'DBD::Pg';
+requires 'Net::SNMP';
 
 requires 'DBIx::Connector';
 requires 'SQL::Abstract::More';
