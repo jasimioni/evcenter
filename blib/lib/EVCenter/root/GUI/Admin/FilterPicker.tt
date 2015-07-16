@@ -1,0 +1,48 @@
+    <li class="col-sm-12">
+        <ul>
+            <li>
+                <strong><em>Filter Selection:</em></strong>
+            </li>
+            <li>
+                <select id='evc-filter-select'>
+                        <option desc='No Filter' value = '0'>No Filter</option>
+                    [% FOREACH filter IN ui_filters.user.keys.sort %]
+                        <option desc='[% filter | replace( "'", "\'" ) %]' value='[% ui_filters.user.$filter.filter_id %]'>
+                            User: [% filter | replace( "'", "\'" ) %]
+                        </option>
+                    [% END %]
+                    [% FOREACH filter IN ui_filters.group.keys.sort %]
+                        <option desc='[% filter | replace( "'", "\'" ) %]' value='[% ui_filters.user.$filter.filter_id %]'>
+                            Group ([% ui_filters.group.$filter.owner %]): [% filter | replace( "'", "\'" ) %]
+                        </option>
+                    [% END %]
+                    [% FOREACH filter IN ui_filters.global.keys.sort %]
+                        <option desc='[% filter | replace( "'", "\'" ) %]' value='[% ui_filters.user.$filter.filter_id %]'>
+                            Global: [% filter | replace( "'", "\'" ) %]
+                        </option>
+                    [% END %]
+                </select>
+            </li>
+            <li>
+                <button class='btn btn-xs btn-primary' id='evc-filter-selected'>Select Filter</button>
+                <button class='btn btn-xs btn-warning'>Edit Filter</button>
+            </li>
+        </ul>
+        <ul>
+            <li class='divider'></li>
+            <li>
+                Add Custom Clause
+            </li>
+        </ul>
+    </li>
+
+<script>
+    $('#evc-filter-selected').click(function() {
+        try {
+            setFilter($('#evc-filter-select :selected').val(), $('#evc-filter-select :selected').attr('desc'));
+        } catch(err) {
+            console.log(err.message);
+        }
+    });
+</script> 
+

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <!-- Title and other stuffs -->
+  <title>[% title %]</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap.min.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/font-awesome.min.css') %]"> 
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery-ui.css') %]"> 
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/fullcalendar.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/prettyPhoto.css') %]">  
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/rateit.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap-datetimepicker.min.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery.cleditor.css') %]">  
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery.dataTables.css') %]"> 
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/jquery.onoff.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/style.css') %]">
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/widgets.css') %]">   
+
+  <link rel="stylesheet" href="[% c.uri_for('/static/jqgrid/css/ui.jqgrid.css') %]">    
+  <link rel="stylesheet" href="[% c.uri_for('/static/css/custom.css') %]">  
+
+  <script src="[% c.uri_for('/static/js/respond.min.js') %]"></script>
+  <!--[if lt IE 9]>
+  <script src="[% c.uri_for('/static/js/html5shiv.js') %]"></script>
+  <![endif]-->
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="[% c.uri_for('/static/img/favicon/favicon.ico') %]">
+  <script src="[% c.uri_for('/static/js/jquery.js') %]"></script> <!-- jQuery -->
+  <style>
+    body {
+      padding-top: 0;
+    }
+  </style>
+</head>
+
+<body>
+  [% content %]
+
+<!-- JS -->
+  <script src="[% c.uri_for('/static/js/bootstrap.min.js') %]"></script> <!-- Bootstrap -->
+  <script src="[% c.uri_for('/static/js/jquery-ui.min.js') %]"></script> <!-- jQuery UI -->
+  <script src="[% c.uri_for('/static/js/fullcalendar.min.js') %]"></script> <!-- Full Google Calendar - Calendar -->
+  <script src="[% c.uri_for('/static/js/jquery.prettyPhoto.js') %]"></script> <!-- prettyPhoto -->
+  <script src="[% c.uri_for('/static/js/jquery.slimscroll.min.js') %]"></script> <!-- jQuery Slim Scroll -->
+  <script src="[% c.uri_for('/static/js/jquery.dataTables.min.js') %]"></script> <!-- Data tables -->
+
+  <!-- jQuery Flot -->
+  <script src="[% c.uri_for('/static/js/excanvas.min.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.resize.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.pie.js') %]"></script>
+  <script src="[% c.uri_for('/static/js/jquery.flot.stack.js') %]"></script>
+
+  <!-- jQuery Notification - Noty -->
+  <script src="[% c.uri_for('/static/js/jquery.noty.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/themes/default.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/layouts/bottom.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/layouts/topRight.js') %]"></script> <!-- jQuery Notify -->
+  <script src="[% c.uri_for('/static/js/layouts/top.js') %]"></script> <!-- jQuery Notify -->
+  <!-- jQuery Notification ends -->
+
+  <script src="[% c.uri_for('/static/js/sparklines.js') %]"></script> <!-- Sparklines -->
+  <script src="[% c.uri_for('/static/js/jquery.cleditor.min.js') %]"></script> <!-- CLEditor -->
+  <script src="[% c.uri_for('/static/js/bootstrap-datetimepicker.min.js') %]"></script> <!-- Date picker -->
+  <script src="[% c.uri_for('/static/js/jquery.onoff.min.js') %]"></script> <!-- Bootstrap Toggle -->
+  <script src="[% c.uri_for('/static/js/filter.js') %]"></script> <!-- Filter for support page -->
+
+  <script src="[% c.uri_for('/static/jqgrid/js/jquery.jqGrid.min.js') %]"></script> <!-- jqGrid -->
+  <script src="[% c.uri_for('/static/jqgrid/js/i18n/grid.locale-en.js') %]"></script> <!-- jqGrid Locale -->
+
+  <script src="[% c.uri_for('/static/js/custom.js') %]"></script> <!-- Custom codes -->
+  <script src="[% c.uri_for('/static/js/charts.js') %]"></script> <!-- Charts & Graphs -->
+
+  <script>
+    [% FOREACH warn IN warns %]
+      noty({text: '[% warn.1 | replace( "'", "\'" ) %]', type:'[% warn.0 %]' });
+    [% END %]
+  </script>
+</body>
+</html>
