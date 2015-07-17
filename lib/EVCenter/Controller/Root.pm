@@ -1,6 +1,7 @@
 package EVCenter::Controller::Root;
 use Moose;
 use namespace::autoclean;
+use Data::Dumper;
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -67,7 +68,22 @@ sub auto :Private {
                  $c->user_exists                 ||
                  $c->req->path =~ /^Auth/);
 
-    $c->response->redirect($c->uri_for('/Auth/login'));
+    my $zbx_sessionid = $c->request->cookie('zbx_sessionid');
+
+    if (defined $zbx_sessionid) {
+        $c->log->debug(Dumper $zbx_sessionid);
+        $zbx_sessionid = $zbx_sessionid->{value}[0];
+        $c->log->debug(Dumper $zbx_sessionid);
+
+        if ($c->model('ZabbixDB')->is_logged_in($zbx_sessionid)) {
+            my $user = $c->find_user({ username => 'admin' });
+            $c->set_authenticated($user);
+            return 1;
+        }
+    }
+
+    # $c->response->redirect($c->uri_for('/Auth/login'));
+    $c->response->redirect($c->uri_for('/zabbix'));
     return 0;
 }
 

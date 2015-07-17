@@ -40,7 +40,7 @@ EVCenter::Base::ACL - Base class to handle EVCenter User ACL (Access Lists)
 
 =head1 SYNOPSIS
 
-    $acl = EVCenteR::Base::ACL->new(dbhost => $dbhost, 
+    $acl = EVCenter::Base::ACL->new(dbhost => $dbhost, 
                                     dbname => $dbname,
                                     dbuser => $dbuser,
                                     dbpass => $dbpass,
