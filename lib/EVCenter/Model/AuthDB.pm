@@ -7,9 +7,9 @@ __PACKAGE__->config(
     schema_class => 'Auth::Schema',
     
     connect_info => {
-        dsn => 'dbi:Pg:dbname=evcenter',
-        #user => '',
-        #password => '',
+        dsn => 'dbi:Pg:dbname=evcenter;host=localhost;port=5432',
+        user => 'evcenter',
+        password => 'evcenter',
     }
 );
 

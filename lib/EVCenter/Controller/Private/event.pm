@@ -28,8 +28,11 @@ O retorno de todos os métodos é um hashref com 'result' e 'error'
 sub parse_and_add :Private {
 	# Parse event information before calling add 
 	# AKA Rules Engine
+	use Data::Dumper;
 	my ( $self, $c, $params ) = @_;
+	print "Parametros Recebidos", Dumper $params;
 	my $new_events;
+	
 	if (ref $params eq 'ARRAY') {
 		$new_events = $params;
 	} elsif (ref $params eq 'HASH') {
@@ -44,8 +47,11 @@ sub parse_and_add :Private {
 	my @events_to_add;
 	foreach my $event (@$new_events) {
 		my ($seq) = values %{$event->{varbinds}[0]};
+		print "Processing event: ", Dumper $event;
 		push @events_to_add, $c->model('Processor')->process_event($event);
 	}
+
+	print "Events do add", Dumper \@events_to_add;
 	$c->forward('add', [ \@events_to_add ]);
 }
 

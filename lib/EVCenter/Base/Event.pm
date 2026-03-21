@@ -9,11 +9,11 @@ use namespace::clean -except => 'meta';
 use JSON::MaybeXS;
 use Log::Any qw/$log/;
 
-has 'conn'      => ( is => 'ro', isa => 'Object', lazy => 1, builder => '_build_conn' );
-has 'dbhost'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbhost'    => ( is => 'rw', isa => 'Str', default => '127.0.0.1' );
 has 'dbname'    => ( is => 'rw', isa => 'Str', default => 'evcenter' );
-has 'dbuser'    => ( is => 'rw', isa => 'Str', default => '' );
-has 'dbpass'    => ( is => 'rw', isa => 'Str', default => '' );
+has 'dbuser'    => ( is => 'rw', isa => 'Str', default => 'evcenter' );
+has 'dbpass'    => ( is => 'rw', isa => 'Str', default => 'evcenter' );
+has 'conn'      => ( is => 'ro', isa => 'Object', lazy => 1, builder => '_build_conn' );
 has 'dbport'    => ( is => 'rw', isa => 'Str', default => '' );
 has 'dbopts'    => ( is => 'rw', isa => 'Str', default => '' );
 has 'dbi_opts'  => ( is => 'rw', isa => 'HashRef' );
@@ -24,6 +24,11 @@ has 'columns'   => ( is => 'ro', isa => 'ArrayRef', builder => '_build_columns' 
 
 sub _build_conn {
     my $self = shift;
+
+    $self->{'dbname'} = 'evcenter';
+    $self->{'dbhost'} = '127.0.0.1';
+    $self->{'dbuser'} = 'evcenter';
+    $self->{'dbpass'} = 'evcenter';
 
     my $dsn = "dbi:Pg:dbname=" . $self->dbname;
     $dsn .= ';host=' . $self->dbhost if ($self->dbhost);

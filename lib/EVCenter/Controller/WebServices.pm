@@ -55,6 +55,8 @@ sub default :Path :Args() {
             # On end function Store it on already processed file
 
             if (defined $c->controller($controller) && $c->controller($controller)->can($method)) {
+		use Data::Dumper;
+		print Dumper $jsonrpc->{params};
                 $jsonrpc_output = $c->forward($controller, $method, [ $jsonrpc->{params} ]);
                 $jsonrpc_output = {} if (ref $jsonrpc_output ne 'HASH');
             } else {

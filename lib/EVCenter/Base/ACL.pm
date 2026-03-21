@@ -21,6 +21,11 @@ has 'errstr'   => ( is => 'rw', isa => 'Str' );
 sub _build_conn {
     my $self = shift;
 
+    $self->{'dbname'} = 'evcenter';
+    $self->{'dbhost'} = '127.0.0.1';
+    $self->{'dbuser'} = 'evcenter';
+    $self->{'dbpass'} = 'evcenter';
+
     my $dsn = "dbi:Pg:dbname=" . $self->dbname;
     $dsn .= ';host=' . $self->dbhost if ($self->dbhost);
     $dsn .= ';port=' . $self->dbport if ($self->dbport);
