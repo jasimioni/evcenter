@@ -24,6 +24,12 @@ has 'columns'   => ( is => 'ro', isa => 'ArrayRef', builder => '_build_columns' 
 
 sub _build_conn {
     my $self = shift;
+    
+    for my $param (qw/dbhost dbname dbuser dbpass dbport dbopts/) {
+        if (defined $ENV{"EVCENTER_" . uc($param)}) {
+            $self->$param($ENV{"EVCENTER_" . uc($param)});
+        }
+    }
 
     my $dsn = "dbi:Pg:dbname=" . $self->dbname;
     $dsn .= ';host=' . $self->dbhost if ($self->dbhost);

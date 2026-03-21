@@ -3,15 +3,47 @@ package EVCenter::Model::AuthDB;
 use strict;
 use base 'Catalyst::Model::DBIC::Schema';
 
+print "###################### Initiating EVCenter::Model::AuthDB ######################\n";
+
 __PACKAGE__->config(
-    schema_class => 'Auth::Schema',
-    
+    schema_class => 'Auth2::Schema',
     connect_info => {
-        dsn => 'dbi:Pg:dbname=evcenter',
-        #user => '',
-        #password => '',
-    }
+        dsn => 'dbi:Pg:dbname=evcenter;host=10.100.100.1;port=5432',
+        AutoCommit => 1,
+        RaiseError => 1,
+    },
 );
+
+=x
+if (defined $ENV{EVCENTER_DBHOST} && defined $ENV{EVCENTER_DBNAME}) {
+    print "EVCENTER_DBHOST and EVCENTER_DBNAME environment variables detected. Configuring DBIC with these parameters.\n";
+    my $dsn = "dbi:Pg:dbname=" . $ENV{EVCENTER_DBNAME};
+    $dsn .= ';host=' . $ENV{EVCENTER_DBHOST} if ($ENV{EVCENTER_DBHOST});
+    $dsn .= ';port=' . $ENV{EVCENTER_DBPORT} if ($ENV{EVCENTER_DBPORT});
+    $dsn .= ';opts=' . $ENV{EVCENTER_DBOPTS} if ($ENV{EVCENTER_DBOPTS});
+
+    print "Constructed DSN: $dsn\n";
+    print "Using DB User: " . ($ENV{EVCENTER_DBUSER} || '(not set)') . "\n";
+    print "Using DB Pass: " . (defined $ENV{EVCENTER_DBPASS} ? '(set)' : '(not set)') . "\n";
+    
+    __PACKAGE__->config(
+        schema_class => 'Auth::Schema',
+        connect_info => {
+            dsn => $dsn,
+            user => $ENV{EVCENTER_DBUSER} || '',
+            password => $ENV{EVCENTER_DBPASS} || '',
+            AutoCommit => 1,
+            RaiseError => 1,
+        },
+    );
+    
+} else {
+    print "EVCENTER_DBHOST and EVCENTER_DBNAME environment variables not set. Using default DBIC configuration.\n";
+    __PACKAGE__->config(
+        schema_class => 'Auth::Schema',
+    )
+};
+===
 
 =head1 NAME
 

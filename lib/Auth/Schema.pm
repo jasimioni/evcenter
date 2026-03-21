@@ -12,6 +12,7 @@ use base 'DBIx::Class::Schema';
 __PACKAGE__->load_namespaces;
 
 
+
 # Created by DBIx::Class::Schema::Loader v0.07039 @ 2014-04-20 12:32:47
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:EYP3UE3YwdIGlGus6SFW4A
 

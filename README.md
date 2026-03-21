@@ -25,3 +25,32 @@ Features:
   * Basic event enrichment implemented out of the box;
   * Parent / Child events support (mainly for root cause visualization);
   * Support for Easy Event Resynchronization (on Agents that support this); 
+  
+
+
+## Installing libraries (Ubuntu 24.04)
+
+```
+apt update
+
+apt install cpanminus libcatalyst-perl libcatalyst-devel-perl liblog-any-adapter-filehandle-perl \
+            libcatalyst-plugin-compress-perl libcatalyst-plugin-unicode-perl libcatalyst-plugin-smarturi-perl \
+            libcatalyst-authentication-store-dbix-class-perl libcatalyst-plugin-session-store-file-perl \
+            build-essential libcatalyst-plugin-configloader-perl libcatalyst-plugin-static-simple-perl \
+            libcatalyst-model-adaptor-perl libcatalyst-view-tt-perl libcatalyst-view-json-perl \
+            libdbix-connector-perl libsql-abstract-more-perl libdbd-pg-perl libhash-merge-simple-perl \
+            libcatalyst-action-renderview-perl
+
+sudo cpanm Catalyst::Plugin::Session::State::Stash Log::Any::Adapter::Catalyst     
+
+```
+
+## PostgreSQL
+
+```
+sudo apt update && sudo apt install -y postgresql
+echo "CREATE USER evcenter WITH PASSWORD 'evcenter';" | sudo -u postgres psql
+echo "CREATE DATABASE evcenter OWNER evcenter;" | sudo -u postgres psql
+curl -q https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/db_creation.sql | sudo -u postgres psql evcenter
+curl https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/PopulateUserControl | sudo -u postgres psql evcenter
+```

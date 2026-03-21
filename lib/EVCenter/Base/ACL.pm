@@ -20,7 +20,13 @@ has 'errstr'   => ( is => 'rw', isa => 'Str' );
 
 sub _build_conn {
     my $self = shift;
-
+    
+    for my $param (qw/dbhost dbname dbuser dbpass dbport dbopts/) {
+        if (defined $ENV{"EVCENTER_" . uc($param)}) {
+            $self->$param($ENV{"EVCENTER_" . uc($param)});
+        }
+    }
+    
     my $dsn = "dbi:Pg:dbname=" . $self->dbname;
     $dsn .= ';host=' . $self->dbhost if ($self->dbhost);
     $dsn .= ';port=' . $self->dbport if ($self->dbport);
