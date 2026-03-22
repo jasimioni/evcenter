@@ -442,7 +442,7 @@ sub get_filter {
     my $user_roles_filter = $self->get_filter_from_user_roles($username);
     my ($user_filter, $user_filter_type) = $self->get_filter_from_user($username);
 
-    my $filter;
+    my $filter = [];
     if (defined $groups_filter && defined $user_roles_filter) {
         $filter = [ -or => [ $groups_filter, $user_roles_filter ]];
     } else {
@@ -459,7 +459,7 @@ sub get_filter {
         } 
     }
 
-    return $filter;
+    return $filter // {};
 }
 
 =head2 get_filter_from_groups

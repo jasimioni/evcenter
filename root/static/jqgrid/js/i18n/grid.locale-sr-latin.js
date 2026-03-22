@@ -1,4 +1,3 @@
-;(function($){
 /**
  * jqGrid Serbian latin Translation
  * Bild Studio info@bild-studio.net
@@ -7,20 +6,73 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
 **/
+/*global jQuery, define */
+(function( factory ) {
+	"use strict";
+	if ( typeof define === "function" && define.amd ) {
+		// AMD. Register as an anonymous module.
+		define([
+			"jquery",
+			"../grid.base"
+		], factory );
+	} else {
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
+
 $.jgrid = $.jgrid || {};
-$.extend($.jgrid,{
+if(!$.jgrid.hasOwnProperty("regional")) {
+	$.jgrid.regional = [];
+}
+$.jgrid.regional["sr-latin"] = {
 	defaults : {
 		recordtext: "Pregled {0} - {1} od {2}",
 		emptyrecords: "Ne postoji nijedan zapis",
 		loadtext: "Učitavanje…",
-		pgtext : "Strana {0} od {1}"
+		pgtext : "Strana {0} od {1}",
+		savetext: "Saving...",
+		pgfirst : "First Page",
+		pglast : "Last Page",
+		pgnext : "Next Page",
+		pgprev : "Previous Page",
+		pgrecs : "Records per Page",
+		showhide: "Toggle Expand Collapse Grid",
+		// mobile
+		pagerCaption : "Grid::Page Settings",
+		pageText : "Page:",
+		recordPage : "Records per Page",
+		nomorerecs : "No more records...",
+		scrollPullup: "Pull up to load more...",
+		scrollPulldown : "Pull down to refresh...",
+		scrollRefresh : "Release to refresh...",
+		valT : "checked",
+		valF : "unchecked",
+		selectLine : "Select row",
+		selectAllLines : "Select all rows",
+		searchCols : "Search on grid columns",
+		subGrid : "Click on Subgrid cell to expand/collapse row",
+		rowNumbers : "Row number information column",
+		subGridExpand : "Click to expand Subgrid",
+		subGridCollapse : "Click to collapse Subgrid",
+		valueCheckbox : "Checkbox"
 	},
 	search : {
 		caption: "Traženje...",
 		Find: "Traži",
 		Reset: "Resetuj",
-		odata: [{ oper:'eq', text:"jednako"},{ oper:'ne', text:"nije jednako"},{ oper:'lt', text:"manje"},{ oper:'le', text:"manje ili jednako"},{ oper:'gt', text:"veće"},{ oper:'ge', text:"veće ili jednako"},{ oper:'bw', text:"počinje sa"},{ oper:'bn', text:"ne počinje sa"},{ oper:'in', text:"je u"},{ oper:'ni', text:"nije u"},{ oper:'ew', text:"završava sa"},{ oper:'en', text:"ne završava sa"},{ oper:'cn', text:"sadrži"},{ oper:'nc', text:"ne sadrži"}],
-		groupOps: [	{ op: "AND", text: "sva" },	{ op: "OR",  text: "bilo koje" }	]
+		odata: [{ oper:'eq', text:"jednako"},{ oper:'ne', text:"nije jednako"},{ oper:'lt', text:"manje"},{ oper:'le', text:"manje ili jednako"},{ oper:'gt', text:"veće"},{ oper:'ge', text:"veće ili jednako"},{ oper:'bw', text:"počinje sa"},{ oper:'bn', text:"ne počinje sa"},{ oper:'in', text:"je u"},{ oper:'ni', text:"nije u"},{ oper:'ew', text:"završava sa"},{ oper:'en', text:"ne završava sa"},{ oper:'cn', text:"sadrži"},{ oper:'nc', text:"ne sadrži"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'between'}],
+		groupOps: [	{ op: "AND", text: "sva" },	{ op: "OR",  text: "bilo koje" }	],
+		operandTitle : "Click to select search operation.",
+		resetTitle : "Reset Search Value",
+		addsubgrup : "Add subgroup",
+		addrule : "Add rule",
+		delgroup : "Delete group",
+		delrule : "Delete rule",
+		Close : "Close",
+		Operand : "Operand : ",
+		Operation : "Oper : ",
+		filterFor : "filter for"
 	},
 	edit : {
 		addCaption: "Dodaj zapis",
@@ -32,6 +84,8 @@ $.extend($.jgrid,{
 		bYes : "Da",
 		bNo : "Ne",
 		bExit : "Odustani",
+		nextRow : "Click to edit next row",
+		prevRow : "Click to edit previous row",
 		msg: {
 			required: "Polje je obavezno",
 			number: "Unesite ispravan broj",
@@ -50,7 +104,9 @@ $.extend($.jgrid,{
 	},
 	view : {
 		caption: "Pogledaj zapis",
-		bClose: "Zatvori"
+		bClose: "Zatvori",
+		nextRow : "Click to view next row",
+		prevRow : "Click to view previous row"
 	},
 	del : {
 		caption: "Izbrisi",
@@ -72,7 +128,12 @@ $.extend($.jgrid,{
 		alertcap: "Upozorenje",
 		alerttext: "Izaberite red",
 		viewtext: "",
-		viewtitle: "Pogledaj izabrani red"
+		viewtitle: "Pogledaj izabrani red",
+		savetext: "",
+		savetitle: "Save row",
+		canceltext: "",
+		canceltitle : "Cancel row editing",
+		selectcaption : "Actions..."
 	},
 	col : {
 		caption: "Izaberi kolone",
@@ -102,7 +163,7 @@ $.extend($.jgrid,{
 			S: function (j) {return j < 11 || j > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((j - 1) % 10, 3)] : 'th'},
 			srcformat: 'Y-m-d',
 			newformat: 'd/m/Y',
-			parseRe : /[Tt\\\/:_;.,\t\s-]/,
+			parseRe : /[#%\\\/:_;.,\t\s-]/,
 			masks : {
 				ISO8601Long:"Y-m-d H:i:s",
 				ISO8601Short:"Y-m-d",
@@ -116,13 +177,55 @@ $.extend($.jgrid,{
 				UniversalSortableDateTime: "Y-m-d H:i:sO",
 				YearMonth: "F, Y"
 			},
-			reformatAfterEdit : false
+			reformatAfterEdit : false,
+			userLocalTime : false
 		},
 		baseLinkUrl: '',
 		showAction: '',
 		target: '',
 		checkbox : {disabled:true},
 		idName : 'id'
+	},
+	colmenu : {
+		sortasc : "Sort Ascending",
+		sortdesc : "Sort Descending",
+		columns : "Columns",
+		filter : "Filter",
+		grouping : "Group By",
+		ungrouping : "Ungroup",
+		searchTitle : "Get items with value that:",
+		freeze : "Freeze",
+		unfreeze : "Unfreeze",
+		reorder : "Move to reorder",
+		hovermenu: "Click for column quick actions"
+	},
+	clipboard : {
+		menus : {
+			copy_act : "Copy Selected to Clipboard",
+			paste_act : "Paste Update from Clipboard",
+			paste_act_add: "Paste Add from Clipboard",
+			undo_act : "Undo",
+			repeat_act_row : "Repeat row vertically",
+			repeat_act_col : "Repeat column horizontally",
+			cancel_act : "Cancel"
+		},
+		msg : {
+			text_c : "Text copied to clipboard.",
+			select_pos : "Please click position to paste!",
+			info_cap : "Information",
+			total_row : "Total rows: ",
+			insert_row: "Inserted: ",
+			update_row: "Updated: "
+		},
+		errors : {
+			enb_prm : "Copy paste disabled in browser, please enable it!",
+			copy_err : "Failed to copy to clipboard: ",
+			read_err : "Failed to read clipboard contents: ",
+			get_data_err : "Can not get data from clipboard or empty!",
+			start_ind_err : "Start index of the cell is not valid!",
+			local_stor_err : "Local storage not available! Can not store data for undo changes!",
+			not_array_err: "Data can not be converted to array"
+		}
 	}
-});
-})(jQuery);
+};
+}));

@@ -5,3 +5,5 @@ probes/var/*
 Makefile.old
 pm_to_blib
 database/schema/schema_history/*
+blib/
+

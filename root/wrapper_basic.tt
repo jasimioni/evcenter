@@ -73,8 +73,8 @@
   <script src="[% c.uri_for('/static/js/jquery.onoff.min.js') %]"></script> <!-- Bootstrap Toggle -->
   <script src="[% c.uri_for('/static/js/filter.js') %]"></script> <!-- Filter for support page -->
 
-  <script src="[% c.uri_for('/static/jqgrid/js/jquery.jqGrid.min.js') %]"></script> <!-- jqGrid -->
   <script src="[% c.uri_for('/static/jqgrid/js/i18n/grid.locale-en.js') %]"></script> <!-- jqGrid Locale -->
+  <script src="[% c.uri_for('/static/jqgrid/js/jquery.jqGrid.min.js') %]"></script> <!-- jqGrid -->
 
   <script src="[% c.uri_for('/static/js/custom.js') %]"></script> <!-- Custom codes -->
   <script src="[% c.uri_for('/static/js/charts.js') %]"></script> <!-- Charts & Graphs -->

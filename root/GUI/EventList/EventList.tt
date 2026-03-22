@@ -47,10 +47,56 @@
   #evc-filter-selector, #evc-view-selector {
   }
 
+  #evc-context-menu {
+    position: fixed;
+    z-index: 2000;
+    min-width: 160px;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  #evc-context-menu.hidden {
+    display: none;
+  }
+
+  #evc-context-menu a {
+    display: block;
+    padding: 6px 12px;
+    color: #333;
+    text-decoration: none;
+  }
+
+  #evc-context-menu a:hover {
+    background: #f5f5f5;
+  }
+
 </style>
 
 
 <div id="grid_container"></div>
+<div id="evc-context-menu" class="hidden">
+  <a href="#" id="evc-context-ack"></a>
+  <a href="#" id="evc-context-suppress"></a>
+  <a href="#" id="evc-context-clear">Clear</a>
+  <a href="#" id="evc-context-restore-severity">Restore Severity</a>
+  <a href="#" id="evc-context-show-log">Show Log</a>
+</div>
+
+<div class="modal fade" id="evc-log-modal" tabindex="-1" role="dialog" aria-labelledby="evc-log-modal-title">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="evc-log-modal-title">Event Log</h4>
+      </div>
+      <div class="modal-body" id="evc-log-modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -64,9 +110,14 @@
     var rowclass;
     var rows;
     var ctrlrows;
+    var ctrlRowsBySerial = {};
     var colNames = [];
     var bottomFilterSelected = 'all';
     var rowfilter = '[% IF gui.rowfilter; gui.rowfilter; END %]';
+    var autoReloadTimer;
+    var contextMenuSelection = [];
+    var lastSelectedRowId = null;
+    var isRangeSelecting = false;
     var postData = { limit:      250, 
                      ackfilter:  '[% gui.ackfilter %]', 
                      suppfilter: '[% gui.suppfilter %]', 
@@ -165,6 +216,7 @@
   <form class="form-inline pull-right" role="form" style="display: inline; margin-right: 10px;" id="evc-form-filter-rows"> \
     <input id="evc-filter-rows" style="height: 22px; width: 100px;" type="text" class="form-control" placeholder="filter..."[% IF gui.rowfilter %] value="[% gui.rowfilter; END %]">\
   </form>  \
+  <div class="pull-right" style="display: inline; margin-right: 10px; line-height: 22px;" id="evc-last-update-wrap">Last Update: <span id="evc-last-update">Never</span></div>\
 </div>');
 
 
@@ -175,6 +227,34 @@
         rowfilter = $('#evc-filter-rows').val();
         $.urlparms.add('rowfilter', rowfilter);
         reloadGrid();
+      });
+
+      $('#evc-context-menu a').click(function(ev) {
+        ev.preventDefault();
+        hideContextMenu();
+
+        if (! contextMenuSelection.length) {
+          return;
+        }
+
+        if ($(this).attr('id') === 'evc-context-show-log') {
+          showEventLog();
+          return;
+        }
+
+        updateSelectedEvents($(this).data('field'), $(this).data('value'));
+      });
+
+      $(document).click(function() {
+        hideContextMenu();
+      });
+
+      $('#grid_container').on('contextmenu', '#el tr.jqgrow', function(ev) {
+        var rowId = $(this).attr('id');
+
+        ev.preventDefault();
+        prepareContextSelection(rowId);
+        showContextMenu(ev.clientX, ev.clientY);
       });
 
       $.ajax({
@@ -233,6 +313,7 @@
               autoencode: true,
               multiSort: true,
               beforeSelectRow: handleMultiSelect,
+              onSelectRow: onSelectRowFn,
               beforeProcessing: beforeProcessingFn,
               gridComplete: gridCompleteFn,
               loadComplete: loadCompleteFn,
@@ -289,10 +370,200 @@
         $('#evc-suppress-sel').html(supp[suppfilter] || defval);
       }
 
+      function setLastUpdateText() {
+        var now = new Date();
+        $('#evc-last-update').text(now.toLocaleDateString() + ' ' + now.toLocaleTimeString());
+      }
+
+      function hideContextMenu() {
+        $('#evc-context-menu').addClass('hidden');
+      }
+
+      function prepareContextSelection(rowId) {
+        var selectedIds = $('#el').jqGrid('getGridParam', 'selarrrow') || [];
+
+        if ($.inArray(rowId, selectedIds) === -1) {
+          $('#el').jqGrid('resetSelection');
+          $('#el').jqGrid('setSelection', rowId, false);
+          selectedIds = [ rowId ];
+        }
+
+        contextMenuSelection = selectedIds;
+      }
+
+      function showContextMenu(clientX, clientY) {
+        var firstRow = ctrlRowsBySerial[contextMenuSelection[0]];
+        var ackAction = firstRow && firstRow.ack > 0 ? 'Unack' : 'Ack';
+        var suppressAction = firstRow && firstRow.suppression > 0 ? 'Unsuppress' : 'Suppress';
+        var canRestoreSeverity = firstRow && Number(firstRow.severity) === 0 && Number(firstRow.start_severity) !== 0;
+        var menuLeft = clientX + 30;
+        var menuTop = clientY - 5;
+
+        if (menuTop < 0) {
+          menuTop = 0;
+        }
+
+        $('#evc-context-ack').text(ackAction)
+          .data('field', 'ack')
+          .data('value', ackAction == 'Ack' ? 1 : 0);
+
+        $('#evc-context-suppress').text(suppressAction)
+          .data('field', 'suppression')
+          .data('value', suppressAction == 'Suppress' ? 1 : 0);
+
+        $('#evc-context-clear')
+          .data('field', 'severity')
+          .data('value', 0);
+
+        $('#evc-context-restore-severity')
+          .data('field', 'restore_severity')
+          .data('value', 1);
+
+        if (canRestoreSeverity) {
+          $('#evc-context-restore-severity').show();
+        } else {
+          $('#evc-context-restore-severity').hide();
+        }
+
+        $('#evc-context-menu').css({ top: menuTop, left: menuLeft }).removeClass('hidden');
+      }
+
+      function updateSelectedEvents(field, value) {
+        $.ajax({
+          type: 'POST',
+          url: '[% c.uri_for('UpdateEvents') %]',
+          traditional: true,
+          data: {
+            'serials[]': contextMenuSelection,
+            field: field,
+            value: value
+          },
+          error: function(xhr) {
+            var message = 'Failed to update selected events';
+            if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {
+              message += ': ' + xhr.responseJSON.error.message;
+            }
+            noty({text: message, type:'error', timeout: 2000 });
+          },
+          success: function(data) {
+            if (data.error) {
+              noty({text: 'Failed to update selected events: ' + data.error.message, type:'error', timeout: 2000 });
+              return;
+            }
+
+            reloadGrid();
+          }
+        });
+      }
+
+      function escapeHtml(text) {
+        return $('<div/>').text(text == null ? '' : String(text)).html();
+      }
+
+      function renderEventLog(logRows, columns) {
+        var idx = {};
+        var bodyHtml = '';
+        $.each(columns || [], function(i, name) {
+          idx[name] = i;
+        });
+
+        if (! logRows || ! logRows.length) {
+          return '<div class="text-muted">No log entries for this event.</div>';
+        }
+
+        bodyHtml += '<table class="table table-condensed table-striped">';
+        bodyHtml += '<thead><tr><th>Occurrence</th><th>User</th><th>Message</th></tr></thead><tbody>';
+        $.each(logRows, function(_, row) {
+          bodyHtml += '<tr>' +
+            '<td>' + escapeHtml(row[idx.occurrence]) + '</td>' +
+            '<td>' + escapeHtml(row[idx.owner_uid]) + '</td>' +
+            '<td>' + escapeHtml(row[idx.log_message]) + '</td>' +
+            '</tr>';
+        });
+        bodyHtml += '</tbody></table>';
+        return bodyHtml;
+      }
+
+      function showEventLog() {
+        var serial = contextMenuSelection[0];
+
+        if (! serial) {
+          noty({text: 'No event selected', type:'error', timeout: 1500 });
+          return;
+        }
+
+        $('#evc-log-modal-title').text('Event Log - Serial ' + serial);
+        $('#evc-log-modal-body').html('<div class="text-center"><img width="32" height="32" src="[% c.uri_for('/static/img/loading.gif') %]" /></div>');
+        $('#evc-log-modal').modal('show');
+
+        $.ajax({
+          type: 'POST',
+          url: '[% c.uri_for('GetEventLog') %]',
+          data: { serial: serial },
+          error: function(xhr) {
+            var message = 'Failed to retrieve event log';
+            if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {
+              message += ': ' + xhr.responseJSON.error.message;
+            }
+            $('#evc-log-modal-body').html('<div class="text-danger">' + escapeHtml(message) + '</div>');
+          },
+          success: function(data) {
+            if (data.error) {
+              $('#evc-log-modal-body').html('<div class="text-danger">' + escapeHtml(data.error.message) + '</div>');
+              return;
+            }
+            $('#evc-log-modal-body').html(renderEventLog(data.result.rows, data.result.columns));
+          }
+        });
+      }
+
+      function selectRangeRows(startRowId, endRowId) {
+        var rowIds = $('#el').jqGrid('getDataIDs');
+        var selectedIds = $('#el').jqGrid('getGridParam', 'selarrrow') || [];
+        var selectedLookup = {};
+        var startIndex = $.inArray(String(startRowId), rowIds);
+        var endIndex = $.inArray(String(endRowId), rowIds);
+        var index;
+        var temp;
+
+        $.each(selectedIds, function(_, selectedId) {
+          selectedLookup[String(selectedId)] = true;
+        });
+
+        if (startIndex === -1 || endIndex === -1) {
+          return;
+        }
+
+        if (startIndex > endIndex) {
+          temp = startIndex;
+          startIndex = endIndex;
+          endIndex = temp;
+        }
+
+        isRangeSelecting = true;
+        for (index = startIndex; index <= endIndex; index++) {
+          if (! selectedLookup[rowIds[index]]) {
+            $('#el').jqGrid('setSelection', rowIds[index], false);
+          }
+        }
+        isRangeSelecting = false;
+      }
+
       function reloadGrid() {
         scrollPosition = $('#el').closest(".ui-jqgrid-bdiv").scrollTop();
         $('#el').setGridParam({ postData: postData });
-        $("#el").trigger("reloadGrid"); 
+        $("#el").trigger("reloadGrid");
+        setLastUpdateText();
+      }
+
+      function startAutoReload() {
+        if (autoReloadTimer) {
+          clearInterval(autoReloadTimer);
+        }
+
+        autoReloadTimer = setInterval(function() {
+          reloadGrid();
+        }, 30000);
       }
 
       /* Controls the Filter Menu Display */
@@ -404,6 +675,11 @@
         reloadGrid();
       });
 
+      $('#reloadOptions').click(function(ev) {
+        ev.preventDefault();
+        reloadGrid();
+      });
+
       $('#saveOptions').click(function(ev) {
         ev.preventDefault();
         $.ajax({
@@ -454,7 +730,24 @@
 
       }
 
-      var handleMultiSelect  = function() {};
+      var handleMultiSelect  = function(rowId, ev) {
+        if (ev && ev.type === 'contextmenu') {
+          return $('#el').jqGrid('getGridParam', 'selarrrow').length === 0 || $.inArray(rowId, $('#el').jqGrid('getGridParam', 'selarrrow')) === -1;
+        }
+
+        if (ev && ev.shiftKey && lastSelectedRowId && lastSelectedRowId != rowId) {
+          selectRangeRows(lastSelectedRowId, rowId);
+          lastSelectedRowId = rowId;
+          return false;
+        }
+
+        return true;
+      };
+      var onSelectRowFn      = function(rowId, status, ev) {
+        if (! isRangeSelecting) {
+          lastSelectedRowId = rowId;
+        }
+      };
       var loadErrorFn        = function(xhr, status, error) { 
         noty({text: 'Error loading events: ' + xhr.responseJSON.error, type:'error', timeout: 3000 });
       };
@@ -465,6 +758,10 @@
       };
       var loadCompleteFn     = function(data) { 
         console.log(data);
+        ctrlRowsBySerial = {};
+        $.each(data.ctrlrows, function(index, row) {
+          ctrlRowsBySerial[row.serial] = row;
+        });
         colorize_rows(data.ctrlrows);
         if (rowfilter != '') {
           filter_rows(data.ctrlrows);
@@ -485,6 +782,8 @@
 
       $('#evc-top-dialogs').removeClass('hidden');
       $('#evc-bot-filters').removeClass('hidden');
+
+      startAutoReload();
     }
 
     setJQGrid();

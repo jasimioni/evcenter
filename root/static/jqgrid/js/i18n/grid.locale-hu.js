@@ -1,4 +1,3 @@
-;(function($){
 /**
  * jqGrid Hungarian Translation
  * Őrszigety Ádám udx6bs@freemail.hu
@@ -8,20 +7,73 @@
  * http://www.gnu.org/licenses/gpl.html
 **/
 
+/*global jQuery, define */
+(function( factory ) {
+	"use strict";
+	if ( typeof define === "function" && define.amd ) {
+		// AMD. Register as an anonymous module.
+		define([
+			"jquery",
+			"../grid.base"
+		], factory );
+	} else {
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
+
 $.jgrid = $.jgrid || {};
-$.extend($.jgrid,{
+if(!$.jgrid.hasOwnProperty("regional")) {
+	$.jgrid.regional = [];
+}
+$.jgrid.regional["hu"] = {
 	defaults : {
 		recordtext: "Oldal {0} - {1} / {2}",
 		emptyrecords: "Nincs találat",
 		loadtext: "Betöltés...",
-		pgtext : "Oldal {0} / {1}"
+		pgtext : "Oldal {0} / {1}",
+		savetext: "Mentés...",
+		pgfirst : "Első oldal",
+		pglast : "Utolsó oldal",
+		pgnext : "Következő oldal",
+		pgprev : "Előző oldal",
+		pgrecs : "Rekordok oldalanként",
+		showhide: "Toggle Expand Collapse Grid",
+		// mobile
+		pagerCaption : "Grid::Page Settings",
+		pageText : "Oldal:",
+		recordPage : "Rekordok oldalanként",
+		nomorerecs : "Nincs több rekord...",
+		scrollPullup: "Pull up to load more...",
+		scrollPulldown : "Pull down to refresh...",
+		scrollRefresh : "Release to refresh...",
+		valT : "checked",
+		valF : "unchecked",
+		selectLine : "Select row",
+		selectAllLines : "Select all rows",
+		searchCols : "Search on grid columns",
+		subGrid : "Click on Subgrid cell to expand/collapse row",
+		rowNumbers : "Row number information column",
+		subGridExpand : "Click to expand Subgrid",
+		subGridCollapse : "Click to collapse Subgrid",
+		valueCheckbox : "Checkbox"
 	},
 	search : {
 		caption: "Keresés...",
 		Find: "Keres",
 		Reset: "Alapértelmezett",
-		odata: [{ oper:'eq', text:"egyenlő"},{ oper:'ne', text:"nem egyenlő"},{ oper:'lt', text:"kevesebb"},{ oper:'le', text:"kevesebb vagy egyenlő"},{ oper:'gt', text:"nagyobb"},{ oper:'ge', text:"nagyobb vagy egyenlő"},{ oper:'bw', text:"ezzel kezdődik"},{ oper:'bn', text:"nem ezzel kezdődik"},{ oper:'in', text:"tartalmaz"},{ oper:'ni', text:"nem tartalmaz"},{ oper:'ew', text:"végződik"},{ oper:'en', text:"nem végződik"},{ oper:'cn', text:"tartalmaz"},{ oper:'nc', text:"nem tartalmaz"}],
-		groupOps: [	{ op: "AND", text: "all" },	{ op: "OR",  text: "any" }	]
+		odata: [{ oper:'eq', text:"egyenlő"},{ oper:'ne', text:"nem egyenlő"},{ oper:'lt', text:"kevesebb"},{ oper:'le', text:"kevesebb vagy egyenlő"},{ oper:'gt', text:"nagyobb"},{ oper:'ge', text:"nagyobb vagy egyenlő"},{ oper:'bw', text:"ezzel kezdődik"},{ oper:'bn', text:"nem ezzel kezdődik"},{ oper:'in', text:"tartalmaz"},{ oper:'ni', text:"nem tartalmaz"},{ oper:'ew', text:"végződik"},{ oper:'en', text:"nem végződik"},{ oper:'cn', text:"tartalmaz"},{ oper:'nc', text:"nem tartalmaz"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'között'}],
+		groupOps: [	{ op: "AND", text: "all" },	{ op: "OR",  text: "any" }	],
+		operandTitle : "Click to select search operation.",
+		resetTitle : "Reset Search Value",
+		addsubgrup : "Add subgroup",
+		addrule : "Add rule",
+		delgroup : "Delete group",
+		delrule : "Delete rule",
+		Close : "Close",
+		Operand : "Operand : ",
+		Operation : "Oper : ",
+		filterFor : "filter for"
 	},
 	edit : {
 		addCaption: "Új tétel",
@@ -33,12 +85,14 @@ $.extend($.jgrid,{
 		bYes : "Igen",
 		bNo : "Nem",
 		bExit : "Mégse",
+		nextRow : "Click to edit next row",
+		prevRow : "Click to edit previous row",
 		msg: {
 			required:"Kötelező mező",
 			number:"Kérjük, adjon meg egy helyes számot",
 			minValue:"Nagyobb vagy egyenlőnek kell lenni mint ",
 			maxValue:"Kisebb vagy egyenlőnek kell lennie mint",
-			email: "hibás emailcím",
+			email: "Hibás email cím",
 			integer: "Kérjük adjon meg egy helyes egész számot",
 			date: "Kérjük adjon meg egy helyes dátumot",
 			url: "nem helyes cím. Előtag kötelező ('http://' vagy 'https://')",
@@ -51,7 +105,9 @@ $.extend($.jgrid,{
 	},
 	view : {
 		caption: "Tétel megtekintése",
-		bClose: "Bezárás"
+		bClose: "Bezárás",
+		nextRow : "Click to view next row",
+		prevRow : "Click to view previous row"
 	},
 	del : {
 		caption: "Törlés",
@@ -73,7 +129,12 @@ $.extend($.jgrid,{
 		alertcap: "Figyelmeztetés",
 		alerttext: "Kérem válasszon tételt.",
 		viewtext: "",
-		viewtitle: "Tétel megtekintése"
+		viewtitle: "Tétel megtekintése",
+		savetext: "",
+		savetitle: "Save row",
+		canceltext: "",
+		canceltitle : "Cancel row editing",
+		selectcaption : "Actions..."
 	},
 	col : {
 		caption: "Oszlopok kiválasztása",
@@ -103,7 +164,7 @@ $.extend($.jgrid,{
 			S: function (j) {return '.-ik';},
 			srcformat: 'Y-m-d',
 			newformat: 'Y/m/d',
-			parseRe : /[Tt\\\/:_;.,\t\s-]/,
+			parseRe : /[#%\\\/:_;.,\t\s-]/,
 			masks : {
 				ISO8601Long:"Y-m-d H:i:s",
 				ISO8601Short:"Y-m-d",
@@ -117,13 +178,55 @@ $.extend($.jgrid,{
 				UniversalSortableDateTime: "Y-m-d H:i:sO",
 				YearMonth: "Y, F"
 			},
-			reformatAfterEdit : false
+			reformatAfterEdit : false,
+			userLocalTime : false
 		},
 		baseLinkUrl: '',
 		showAction: '',
 		target: '',
 		checkbox : {disabled:true},
 		idName : 'id'
+	},
+	colmenu : {
+		sortasc : "Sort Ascending",
+		sortdesc : "Sort Descending",
+		columns : "Columns",
+		filter : "Filter",
+		grouping : "Group By",
+		ungrouping : "Ungroup",
+		searchTitle : "Get items with value that:",
+		freeze : "Freeze",
+		unfreeze : "Unfreeze",
+		reorder : "Move to reorder",
+		hovermenu: "Click for column quick actions"
+	},
+	clipboard : {
+		menus : {
+			copy_act : "Copy Selected to Clipboard",
+			paste_act : "Paste Update from Clipboard",
+			paste_act_add: "Paste Add from Clipboard",
+			undo_act : "Undo",
+			repeat_act_row : "Repeat row vertically",
+			repeat_act_col : "Repeat column horizontally",
+			cancel_act : "Cancel"
+		},
+		msg : {
+			text_c : "Text copied to clipboard.",
+			select_pos : "Please click position to paste!",
+			info_cap : "Information",
+			total_row : "Total rows: ",
+			insert_row: "Inserted: ",
+			update_row: "Updated: "
+		},
+		errors : {
+			enb_prm : "Copy paste disabled in browser, please enable it!",
+			copy_err : "Failed to copy to clipboard: ",
+			read_err : "Failed to read clipboard contents: ",
+			get_data_err : "Can not get data from clipboard or empty!",
+			start_ind_err : "Start index of the cell is not valid!",
+			local_stor_err : "Local storage not available! Can not store data for undo changes!",
+			not_array_err: "Data can not be converted to array"
+		}
 	}
-});
-})(jQuery);
+};
+}));

@@ -39,9 +39,9 @@ apt install cpanminus libcatalyst-perl libcatalyst-devel-perl liblog-any-adapter
             build-essential libcatalyst-plugin-configloader-perl libcatalyst-plugin-static-simple-perl \
             libcatalyst-model-adaptor-perl libcatalyst-view-tt-perl libcatalyst-view-json-perl \
             libdbix-connector-perl libsql-abstract-more-perl libdbd-pg-perl libhash-merge-simple-perl \
-            libcatalyst-action-renderview-perl
+            libcatalyst-action-renderview-perl libdigest-sha-perl
 
-sudo cpanm Catalyst::Plugin::Session::State::Stash Log::Any::Adapter::Catalyst     
+sudo cpanm Catalyst::Plugin::Session::State::Stash Log::Any::Adapter::Catalyst Digest::SHA1     
 
 ```
 
@@ -51,6 +51,6 @@ sudo cpanm Catalyst::Plugin::Session::State::Stash Log::Any::Adapter::Catalyst
 sudo apt update && sudo apt install -y postgresql
 echo "CREATE USER evcenter WITH PASSWORD 'evcenter';" | sudo -u postgres psql
 echo "CREATE DATABASE evcenter OWNER evcenter;" | sudo -u postgres psql
-curl -q https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/db_creation.sql | sudo -u postgres psql evcenter
+curl -q https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/create_database.sql | sudo -u postgres psql evcenter
 curl https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/PopulateUserControl | sudo -u postgres psql evcenter
 ```

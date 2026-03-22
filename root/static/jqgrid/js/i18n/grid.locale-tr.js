@@ -1,4 +1,3 @@
-;(function($){
 /**
  * jqGrid Turkish Translation
  * Erhan Gündoğan (erhan@trposta.net)
@@ -7,20 +6,73 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
 **/
+/*global jQuery, define */
+(function( factory ) {
+	"use strict";
+	if ( typeof define === "function" && define.amd ) {
+		// AMD. Register as an anonymous module.
+		define([
+			"jquery",
+			"../grid.base"
+		], factory );
+	} else {
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
+
 $.jgrid = $.jgrid || {};
-$.extend($.jgrid,{
+if(!$.jgrid.hasOwnProperty("regional")) {
+	$.jgrid.regional = [];
+}
+$.jgrid.regional["tr"] = {
 	defaults : {
 		recordtext: "{0}-{1} listeleniyor. Toplam:{2}",
 	    emptyrecords: "Kayıt bulunamadı",
 		loadtext: "Yükleniyor...",
-		pgtext : "{0}/{1}. Sayfa"
+		pgtext : "{0}/{1}. Sayfa",
+		savetext: "Saving...",
+		pgfirst : "First Page",
+		pglast : "Last Page",
+		pgnext : "Next Page",
+		pgprev : "Previous Page",
+		pgrecs : "Records per Page",
+		showhide: "Toggle Expand Collapse Grid",
+		// mobile
+		pagerCaption : "Grid::Page Settings",
+		pageText : "Page:",
+		recordPage : "Records per Page",
+		nomorerecs : "No more records...",
+		scrollPullup: "Pull up to load more...",
+		scrollPulldown : "Pull down to refresh...",
+		scrollRefresh : "Release to refresh...",
+		valT : "checked",
+		valF : "unchecked",
+		selectLine : "Select row",
+		selectAllLines : "Select all rows",
+		searchCols : "Search on grid columns",
+		subGrid : "Click on Subgrid cell to expand/collapse row",
+		rowNumbers : "Row number information column",
+		subGridExpand : "Click to expand Subgrid",
+		subGridCollapse : "Click to collapse Subgrid",
+		valueCheckbox : "Checkbox"
 	},
 	search : {
 	    caption: "Arama...",
 	    Find: "Bul",
 	    Reset: "Temizle",	    
-	    odata: [{ oper:'eq', text:"eşit"},{ oper:'ne', text:"eşit değil"},{ oper:'lt', text:"daha az"},{ oper:'le', text:"daha az veya eşit"},{ oper:'gt', text:"daha fazla"},{ oper:'ge', text:"daha fazla veya eşit"},{ oper:'bw', text:"ile başlayan"},{ oper:'bn', text:"ile başlamayan"},{ oper:'in', text:"içinde"},{ oper:'ni', text:"içinde değil"},{ oper:'ew', text:"ile biten"},{ oper:'en', text:"ile bitmeyen"},{ oper:'cn', text:"içeren"},{ oper:'nc', text:"içermeyen"}],
-	    groupOps: [	{ op: "VE", text: "tüm" },	{ op: "VEYA",  text: "herhangi" }	]
+	    odata: [{ oper:'eq', text:"eşit"},{ oper:'ne', text:"eşit değil"},{ oper:'lt', text:"daha az"},{ oper:'le', text:"daha az veya eşit"},{ oper:'gt', text:"daha fazla"},{ oper:'ge', text:"daha fazla veya eşit"},{ oper:'bw', text:"ile başlayan"},{ oper:'bn', text:"ile başlamayan"},{ oper:'in', text:"içinde"},{ oper:'ni', text:"içinde değil"},{ oper:'ew', text:"ile biten"},{ oper:'en', text:"ile bitmeyen"},{ oper:'cn', text:"içeren"},{ oper:'nc', text:"içermeyen"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'between'}],
+	    groupOps: [	{ op: "VE", text: "tüm" },	{ op: "VEYA",  text: "herhangi" }],
+		operandTitle : "Click to select search operation.",
+		resetTitle : "Reset Search Value",
+		addsubgrup : "Add subgroup",
+		addrule : "Add rule",
+		delgroup : "Delete group",
+		delrule : "Delete rule",
+		Close : "Close",
+		Operand : "Operand : ",
+		Operation : "Oper : ",
+		filterFor : "filter for"
 	},
 	edit : {
 	    addCaption: "Kayıt Ekle",
@@ -32,6 +84,8 @@ $.extend($.jgrid,{
 		bYes : "Evet",
 		bNo : "Hayıt",
 		bExit : "İptal",
+		nextRow : "Click to edit next row",
+		prevRow : "Click to edit previous row",
 	    msg: {
 	        required:"Alan gerekli",
 	        number:"Lütfen bir numara giriniz",
@@ -48,7 +102,9 @@ $.extend($.jgrid,{
 	},
 	view : {
 	    caption: "Kayıt Görüntüle",
-	    bClose: "Kapat"
+	    bClose: "Kapat",
+		nextRow : "Click to view next row",
+		prevRow : "Click to view previous row"
 	},
 	del : {
 	    caption: "Sil",
@@ -70,7 +126,12 @@ $.extend($.jgrid,{
 	    alertcap: "Uyarı",
 	    alerttext: "Lütfen bir satır seçiniz",
 		viewtext: "",
-		viewtitle: "Seçilen satırı görüntüle"
+		viewtitle: "Seçilen satırı görüntüle",
+		savetext: "",
+		savetitle: "Save row",
+		canceltext: "",
+		canceltitle : "Cancel row editing",
+		selectcaption : "Actions..."
 	},
 	col : {
 	    caption: "Sütunları göster/gizle",
@@ -100,7 +161,7 @@ $.extend($.jgrid,{
 			S: function (j) {return j < 11 || j > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((j - 1) % 10, 3)] : 'th'},
 			srcformat: 'Y-m-d',
 			newformat: 'd/m/Y',
-			parseRe : /[Tt\\\/:_;.,\t\s-]/,
+			parseRe : /[#%\\\/:_;.,\t\s-]/,
 			masks : {
 	            ISO8601Long:"Y-m-d H:i:s",
 	            ISO8601Short:"Y-m-d",
@@ -114,13 +175,55 @@ $.extend($.jgrid,{
 	            UniversalSortableDateTime: "Y-m-d H:i:sO",
 	            YearMonth: "F, Y"
 	        },
-	        reformatAfterEdit : false
+	        reformatAfterEdit : false,
+			userLocalTime : false
 		},
 		baseLinkUrl: '',
 		showAction: '',
 	    target: '',
 	    checkbox : {disabled:true},
 		idName : 'id'
+	},
+	colmenu : {
+		sortasc : "Sort Ascending",
+		sortdesc : "Sort Descending",
+		columns : "Columns",
+		filter : "Filter",
+		grouping : "Group By",
+		ungrouping : "Ungroup",
+		searchTitle : "Get items with value that:",
+		freeze : "Freeze",
+		unfreeze : "Unfreeze",
+		reorder : "Move to reorder",
+		hovermenu: "Click for column quick actions"
+	},
+	clipboard : {
+		menus : {
+			copy_act : "Copy Selected to Clipboard",
+			paste_act : "Paste Update from Clipboard",
+			paste_act_add: "Paste Add from Clipboard",
+			undo_act : "Undo",
+			repeat_act_row : "Repeat row vertically",
+			repeat_act_col : "Repeat column horizontally",
+			cancel_act : "Cancel"
+		},
+		msg : {
+			text_c : "Text copied to clipboard.",
+			select_pos : "Please click position to paste!",
+			info_cap : "Information",
+			total_row : "Total rows: ",
+			insert_row: "Inserted: ",
+			update_row: "Updated: "
+		},
+		errors : {
+			enb_prm : "Copy paste disabled in browser, please enable it!",
+			copy_err : "Failed to copy to clipboard: ",
+			read_err : "Failed to read clipboard contents: ",
+			get_data_err : "Can not get data from clipboard or empty!",
+			start_ind_err : "Start index of the cell is not valid!",
+			local_stor_err : "Local storage not available! Can not store data for undo changes!",
+			not_array_err: "Data can not be converted to array"
+		}
 	}
-});
-})(jQuery);
+};
+}));

@@ -1,4 +1,3 @@
-;(function($){
 /**
  * jqGrid Galician Translation
  * Translated by Jorge Barreiro <yortx.barry@gmail.com>
@@ -6,20 +5,73 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
 **/
+/*global jQuery, define */
+(function( factory ) {
+	"use strict";
+	if ( typeof define === "function" && define.amd ) {
+		// AMD. Register as an anonymous module.
+		define([
+			"jquery",
+			"../grid.base"
+		], factory );
+	} else {
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
+
 $.jgrid = $.jgrid || {};
-$.extend($.jgrid,{
+if(!$.jgrid.hasOwnProperty("regional")) {
+	$.jgrid.regional = [];
+}
+$.jgrid.regional["gl"] = {
 	defaults : {
 		recordtext: "Amosando {0} - {1} de {2}",
 	    emptyrecords: "Sen rexistros que amosar",
 		loadtext: "Cargando...",
-		pgtext : "Páxina {0} de {1}"
+		pgtext : "Páxina {0} de {1}",
+		savetext: "Saving...",
+		pgfirst : "First Page",
+		pglast : "Last Page",
+		pgnext : "Next Page",
+		pgprev : "Previous Page",
+		pgrecs : "Records per Page",
+		showhide: "Toggle Expand Collapse Grid",
+		// mobile
+		pagerCaption : "Grid::Page Settings",
+		pageText : "Page:",
+		recordPage : "Records per Page",
+		nomorerecs : "No more records...",
+		scrollPullup: "Pull up to load more...",
+		scrollPulldown : "Pull down to refresh...",
+		scrollRefresh : "Release to refresh...",
+		valT : "checked",
+		valF : "unchecked",
+		selectLine : "Select row",
+		selectAllLines : "Select all rows",
+		searchCols : "Search on grid columns",
+		subGrid : "Click on Subgrid cell to expand/collapse row",
+		rowNumbers : "Row number information column",
+		subGridExpand : "Click to expand Subgrid",
+		subGridCollapse : "Click to collapse Subgrid",
+		valueCheckbox : "Checkbox"
 	},
 	search : {
 	    caption: "Búsqueda...",
 	    Find: "Buscar",
 	    Reset: "Limpar",
-	    odata: [{ oper:'eq', text:"igual "},{ oper:'ne', text:"diferente a"},{ oper:'lt', text:"menor que"},{ oper:'le', text:"menor ou igual que"},{ oper:'gt', text:"maior que"},{ oper:'ge', text:"maior ou igual a"},{ oper:'bw', text:"empece por"},{ oper:'bn', text:"non empece por"},{ oper:'in', text:"está en"},{ oper:'ni', text:"non está en"},{ oper:'ew', text:"termina por"},{ oper:'en', text:"non termina por"},{ oper:'cn', text:"contén"},{ oper:'nc', text:"non contén"}],
-	    groupOps: [	{ op: "AND", text: "todo" },	{ op: "OR",  text: "calquera" }	]
+	    odata: [{ oper:'eq', text:"igual "},{ oper:'ne', text:"diferente a"},{ oper:'lt', text:"menor que"},{ oper:'le', text:"menor ou igual que"},{ oper:'gt', text:"maior que"},{ oper:'ge', text:"maior ou igual a"},{ oper:'bw', text:"empece por"},{ oper:'bn', text:"non empece por"},{ oper:'in', text:"está en"},{ oper:'ni', text:"non está en"},{ oper:'ew', text:"termina por"},{ oper:'en', text:"non termina por"},{ oper:'cn', text:"contén"},{ oper:'nc', text:"non contén"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'between'}],
+	    groupOps: [	{ op: "AND", text: "todo" },	{ op: "OR",  text: "calquera" }	],
+		operandTitle : "Click to select search operation.",
+		resetTitle : "Reset Search Value",
+		addsubgrup : "Add subgroup",
+		addrule : "Add rule",
+		delgroup : "Delete group",
+		delrule : "Delete rule",
+		Close : "Close",
+		Operand : "Operand : ",
+		Operation : "Oper : ",
+		filterFor : "filter for"
 	},
 	edit : {
 	    addCaption: "Engadir rexistro",
@@ -31,6 +83,8 @@ $.extend($.jgrid,{
 		bYes : "Si",
 		bNo : "Non",
 		bExit : "Cancelar",
+		nextRow : "Click to edit next row",
+		prevRow : "Click to edit previous row",
 	    msg: {
 	        required:"Campo obrigatorio",
 	        number:"Introduza un número",
@@ -48,7 +102,9 @@ $.extend($.jgrid,{
 	},
 	view : {
 	    caption: "Consultar rexistro",
-	    bClose: "Pechar"
+	    bClose: "Pechar",
+		nextRow : "Click to view next row",
+		prevRow : "Click to view previous row"
 	},
 	del : {
 	    caption: "Eliminar",
@@ -70,7 +126,12 @@ $.extend($.jgrid,{
 	    alertcap: "Aviso",
 	    alerttext: "Seleccione unha fila",
 		viewtext: "",
-		viewtitle: "Ver fila seleccionada"
+		viewtitle: "Ver fila seleccionada",
+		savetext: "",
+		savetitle: "Save row",
+		canceltext: "",
+		canceltitle : "Cancel row editing",
+		selectcaption : "Actions..."
 	},
 	col : {
 	    caption: "Mostrar/ocultar columnas",
@@ -100,7 +161,7 @@ $.extend($.jgrid,{
 			S: function (j) {return j < 11 || j > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((j - 1) % 10, 3)] : 'th'},
 			srcformat: 'Y-m-d',
 			newformat: 'd-m-Y',
-			parseRe : /[Tt\\\/:_;.,\t\s-]/,
+			parseRe : /[#%\\\/:_;.,\t\s-]/,
 			masks : {
 	            ISO8601Long:"Y-m-d H:i:s",
 	            ISO8601Short:"Y-m-d",
@@ -114,13 +175,55 @@ $.extend($.jgrid,{
 	            UniversalSortableDateTime: "Y-m-d H:i:sO",
 	            YearMonth: "F, Y"
 	        },
-	        reformatAfterEdit : false
+	        reformatAfterEdit : false,
+			userLocalTime : false
 		},
 		baseLinkUrl: '',
 		showAction: '',
 	    target: '',
 	    checkbox : {disabled:true},
 		idName : 'id'
+	},
+	colmenu : {
+		sortasc : "Sort Ascending",
+		sortdesc : "Sort Descending",
+		columns : "Columns",
+		filter : "Filter",
+		grouping : "Group By",
+		ungrouping : "Ungroup",
+		searchTitle : "Get items with value that:",
+		freeze : "Freeze",
+		unfreeze : "Unfreeze",
+		reorder : "Move to reorder",
+		hovermenu: "Click for column quick actions"
+	},
+	clipboard : {
+		menus : {
+			copy_act : "Copy Selected to Clipboard",
+			paste_act : "Paste Update from Clipboard",
+			paste_act_add: "Paste Add from Clipboard",
+			undo_act : "Undo",
+			repeat_act_row : "Repeat row vertically",
+			repeat_act_col : "Repeat column horizontally",
+			cancel_act : "Cancel"
+		},
+		msg : {
+			text_c : "Text copied to clipboard.",
+			select_pos : "Please click position to paste!",
+			info_cap : "Information",
+			total_row : "Total rows: ",
+			insert_row: "Inserted: ",
+			update_row: "Updated: "
+		},
+		errors : {
+			enb_prm : "Copy paste disabled in browser, please enable it!",
+			copy_err : "Failed to copy to clipboard: ",
+			read_err : "Failed to read clipboard contents: ",
+			get_data_err : "Can not get data from clipboard or empty!",
+			start_ind_err : "Start index of the cell is not valid!",
+			local_stor_err : "Local storage not available! Can not store data for undo changes!",
+			not_array_err: "Data can not be converted to array"
+		}
 	}
-});
-})(jQuery);
+};
+}));

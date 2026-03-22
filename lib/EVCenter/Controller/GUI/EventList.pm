@@ -38,6 +38,70 @@ sub SaveOptions :Local :Args(0) {
     $c->stash('jsonrpc_output' => $return);
 }
 
+sub UpdateEvents :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash(current_view => 'JSON');
+
+    my @serials = $c->req->param('serials[]');
+    my $field   = $c->req->param('field');
+    my $value   = $c->req->param('value');
+
+    if (! @serials) {
+        $c->response->status(400);
+        $c->stash(jsonrpc_output => { error => { message => 'No events selected' } });
+        return 1;
+    }
+
+    if ($field ne 'ack' && $field ne 'suppression' && $field ne 'severity' && $field ne 'restore_severity') {
+        $c->response->status(400);
+        $c->stash(jsonrpc_output => { error => { message => 'Invalid update field' } });
+        return 1;
+    }
+
+    my $update;
+    if ($field eq 'restore_severity') {
+        $update = { restore_severity => 1 };
+    } else {
+        $update = { $field => $value };
+    }
+
+    my $return = $c->forward('/Private/event/upd', [ {
+        filter => { serial => \@serials },
+        update => $update,
+    } ]);
+
+    if (! defined $return->{result}) {
+        $c->response->status(400);
+    }
+
+    $c->stash(jsonrpc_output => $return);
+}
+
+sub GetEventLog :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash(current_view => 'JSON');
+
+    my $serial = $c->req->param('serial');
+
+    if (! defined $serial || $serial !~ /^\d+$/) {
+        $c->response->status(400);
+        $c->stash(jsonrpc_output => { error => { message => 'Invalid event serial' } });
+        return 1;
+    }
+
+    my $return = $c->forward('/Private/event/get_log', [ {
+        filter => { event_serial => $serial },
+    } ]);
+
+    if (! defined $return->{result}) {
+        $c->response->status(400);
+    }
+
+    $c->stash(jsonrpc_output => $return);
+}
+
 sub RetrieveEvents :Local :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -94,7 +158,7 @@ sub RetrieveEvents :Local :Args(0) {
     }
 
     # In the future, I should change this forward to a CallWebServiceInternally Plugin
-        my $return = $c->forward('/Private/event/get', [ { columns  => [ 'serial', 'severity', 'ack', @$columns ],
+                                my $return = $c->forward('/Private/event/get', [ { columns  => [ 'serial', 'severity', 'ack', 'suppression', 'start_severity', @$columns ],
                                                        limit    => $c->req->param('limit'),
                                                        filter   => { -and => \@filters },
                                                        order_by => $sort,
@@ -121,12 +185,12 @@ sub RetrieveEvents :Local :Args(0) {
     };
     $c->stash('jsonrpc_output' => $json);
 
-    my ($serial, $severity, $ack);
+    my ($serial, $severity, $ack, $suppression, $start_severity);
     my @sevcount = (0, 0, 0, 0, 0, 0);
     foreach my $row (@$rows) {
-        ($serial, $severity, $ack) = splice(@$row, 0, 3);
+        ($serial, $severity, $ack, $suppression, $start_severity) = splice(@$row, 0, 5);
         $sevcount[$severity]++;
-        push @{$json->{ctrlrows}}, { serial => $serial, severity => $severity, ack => $ack };
+        push @{$json->{ctrlrows}}, { serial => $serial, severity => $severity, ack => $ack, suppression => $suppression, start_severity => $start_severity };
         push @{$json->{rows}}, {
             id   => $serial,
             cell => $row,

@@ -1,4 +1,3 @@
-;(function($){
 /**
  * jqGrid Bulgarian Translation 
  * Tony Tomov tony@trirand.com
@@ -7,20 +6,73 @@
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
 **/
+/*global jQuery, define */
+(function( factory ) {
+	"use strict";
+	if ( typeof define === "function" && define.amd ) {
+		// AMD. Register as an anonymous module.
+		define([
+			"jquery",
+			"../grid.base"
+		], factory );
+	} else {
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
+
 $.jgrid = $.jgrid || {};
-$.extend($.jgrid,{
+if(!$.jgrid.hasOwnProperty("regional")) {
+	$.jgrid.regional = [];
+}
+$.jgrid.regional["bg"] = {
 	defaults : {
 		recordtext: "{0} - {1} от {2}",
 		emptyrecords: "Няма запис(и)",
 		loadtext: "Зареждам...",
-		pgtext : "Стр. {0} от {1}"
+		savetext: "Записвам...",
+		pgtext : "Стр. {0} от {1}",
+		pgfirst : "Първа Стр.",
+		pglast : "Последна Стр.",
+		pgnext : "Следваща Стр.",
+		pgprev : "Предишна Стр.",
+		pgrecs : "Брой записи на Стр.",
+		showhide: "Свиване/Разтягане на таблицата",
+		// mobile
+		pagerCaption : "Таблица::Настр. Страница",
+		pageText : "Страница:",
+		recordPage : "Записи на стр.",
+		nomorerecs : "Няма повече записи...",
+		scrollPullup: "Издърпайте нагоре за повече...",
+		scrollPulldown : "Дръпнете надолу за опресняване...",
+		scrollRefresh : "Освободете за да опресните...",
+		valT : "с отметка",
+		valF : "без отметка",
+		selectLine : "Избери ред",
+		selectAllLines : "Избери всички",
+		searchCols : "Търсене по колони в таблицата",
+		subGrid : "Щракнете върху клетка на подтаблицата, за да разгънете/свиете реда",
+		rowNumbers : "Колона с информация за номера на реда",
+		subGridExpand : "Щракнете за да разгънете подтаблицата",
+		subGridCollapse : "Щракнете за да свиете подтаблицата",
+		valueCheckbox : "Квадратче за отметка"
 	},
 	search : {
 		caption: "Търсене...",
 		Find: "Намери",
 		Reset: "Изчисти",
-		odata: [{ oper:'eq', text:"равно"},{ oper:'ne', text:"различно"},{ oper:'lt', text:"по-малко"},{ oper:'le', text:"по-малко или="},{ oper:'gt', text:"по-голямо"},{ oper:'ge', text:"по-голямо или ="},{ oper:'bw', text:"започва с"},{ oper:'bn', text:"не започва с"},{ oper:'in', text:"се намира в"},{ oper:'ni', text:"не се намира в"},{ oper:'ew', text:"завършва с"},{ oper:'en', text:"не завършава с"},{ oper:'cn', text:"съдържа"},{ oper:'nc', text:"не съдържа"}],
-	    groupOps: [	{ op: "AND", text: "&nbsp;И " },	{ op: "OR",  text: "ИЛИ" }	]
+		odata: [{ oper:'eq', text:"равно"},{ oper:'ne', text:"различно"},{ oper:'lt', text:"по-малко"},{ oper:'le', text:"по-малко или="},{ oper:'gt', text:"по-голямо"},{ oper:'ge', text:"по-голямо или ="},{ oper:'bw', text:"започва с"},{ oper:'bn', text:"не започва с"},{ oper:'in', text:"се намира в"},{ oper:'ni', text:"не се намира в"},{ oper:'ew', text:"завършва с"},{ oper:'en', text:"не завършава с"},{ oper:'cn', text:"съдържа"},{ oper:'nc', text:"не съдържа"},{ oper:'nu', text:'е NULL'},{ oper:'nn', text:'не е NULL'}, {oper:'bt', text:'между'}],
+	    groupOps: [	{ op: "AND", text: "&nbsp;И " },	{ op: "OR",  text: "ИЛИ" }	],
+		operandTitle : "Натисни за избор на операнд.",
+		resetTitle : "Изчисти стойността",
+		addsubgrup : "Добави група",
+		addrule : "Добави правило",
+		delgroup : "Изтрий група",
+		delrule : "Изтрий правило",
+		Close : "Затвори",
+		Operand : "Операнд : ",
+		Operation : "Опер. : ",
+		filterFor : "филтър за"
 	},
 	edit : {
 		addCaption: "Нов Запис",
@@ -32,6 +84,8 @@ $.extend($.jgrid,{
 		bYes : "Да",
 		bNo : "Не",
 		bExit : "Отказ",
+		nextRow : "Щракнете за редакция на следващ ред",
+		prevRow : "Щракнете за редакция на предишен ред",
 		msg: {
 			required:"Полето е задължително",
 			number:"Въведете валидно число!",
@@ -49,7 +103,9 @@ $.extend($.jgrid,{
 	},
 	view : {
 		caption: "Преглед запис",
-		bClose: "Затвори"
+		bClose: "Затвори",
+		nextRow : "Щракнете за преглед на следващ ред",
+		prevRow : "Щракнете за преглед на предишен ред"
 	},
 	del : {
 		caption: "Изтриване",
@@ -71,7 +127,12 @@ $.extend($.jgrid,{
 		alertcap: "Предупреждение",
 		alerttext: "Моля, изберете запис",
 		viewtext: "",
-		viewtitle: "Преглед избран запис"
+		viewtitle: "Преглед избран запис",
+		savetext: "",
+		savetitle: "Съхрани запис",
+		canceltext: "",
+		canceltitle : "Отказ редакция",
+		selectcaption : "Действия..."
 	},
 	col : {
 		caption: "Избери колони",
@@ -106,7 +167,7 @@ $.extend($.jgrid,{
 			},
 			srcformat: 'Y-m-d',
 			newformat: 'd/m/Y',
-			parseRe : /[Tt\\\/:_;.,\t\s-]/,
+			parseRe : /[#%\\\/:_;.,\t\s-]/,
 			masks : {
 				ISO8601Long:"Y-m-d H:i:s",
 				ISO8601Short:"Y-m-d",
@@ -120,13 +181,55 @@ $.extend($.jgrid,{
 				UniversalSortableDateTime: "Y-m-d H:i:sO",
 				YearMonth: "F, Y"
 			},
-			reformatAfterEdit : false
+			reformatAfterEdit : false,
+			userLocalTime : false
 		},
 		baseLinkUrl: '',
 		showAction: '',
 		target: '',
 		checkbox : {disabled:true},
 		idName : 'id'
+	},
+	colmenu : {
+		sortasc : "Сортирай възходящо",
+		sortdesc : "Сортирай низходящо",
+		columns : "Колони",
+		filter : "Филтрирай",
+		grouping : "Групирай по",
+		ungrouping : "Разгрупиране",
+		searchTitle : "Търси данни със стойност, която",
+		freeze : "Неподвижна",
+		unfreeze : "Отмяна неподвижност",
+		reorder : "Премести за пренареждане",
+		hovermenu: "Щракнете за бързи действия в колоната"
+	},
+	clipboard : {
+		menus : {
+			copy_act : "Копирай избраното в клипборда",
+			paste_act : "Постави от избраната позиция",
+			paste_act_add: "Постави с добавяне",
+			undo_act : "Отмени",
+			repeat_act_row : "Повтори реда вертикално",
+			repeat_act_col : "Повтори колона хоризонтално",
+			cancel_act : "Отказ"
+		},
+		msg : {
+			text_c : "Текста е копиран в клипборда.",
+			select_pos : "Моля, изберете позиция за поставяне!",
+			info_cap : "Информация",
+			total_row : "Общо редове: ",
+			insert_row: "Добавени: ",
+			update_row: "Променени: "
+		},
+		errors : {
+			enb_prm : "Копирането и поставянето е забранено в браузера, моля разрешете го!",
+			copy_err : "Неуспешно копиране в клипборда: ",
+			read_err : "Неуспешно четене на съдържанието на клипборда: ",
+			get_data_err : "Не могат да се получат данни от клипборда или е празен!",
+			start_ind_err : "Началният индекс на клетката не е валиден!",
+			local_stor_err : "Локалното хранилище не е налично! Не могат да се съхраняват данни за отмяна на промени!",
+			not_array_err: "Данните не могат да се конвертират в масив."
+		}
 	}
-});
-})(jQuery);
+};
+}));

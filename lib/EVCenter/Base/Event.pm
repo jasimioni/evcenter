@@ -120,16 +120,23 @@ sub get_events {
     my $filter     = $p{filter}   // {};
     my $restrict   = $p{restrict} // {};
     my $order_by   = $p{order_by} // [];
-    my $limit      = $p{limit} // 0;
-    my $offset     = $p{offset} // 0;
     my $columns    = $p{columns} // '*';
+    
+    my @fields = (
+        -columns  => $columns,
+        -from     => 'active_events',
+        -where    => [ -and => [ $filter, $restrict ] ],
+        -order_by => $order_by,
+    );
 
-    my ($query, @params) = $self->sqla->select(-columns  => $columns,
-                                               -from     => 'active_events',
-                                               -where    => [ -and => [ $filter, $restrict ] ],
-                                               -order_by => $order_by,
-                                               -limit    => $limit,
-                                           );
+    if (defined $p{limit}) {
+        push @fields, (-limit => $p{limit});
+    }
+    
+    if (defined $p{offset}) {
+        push @fields, (-offset => $p{offset});
+    }
+    my ($query, @params) = $self->sqla->select(@fields);
 
     $log->debug("SQL: $query => Params: " . join(", ", @params));
                                            
@@ -142,8 +149,45 @@ sub get_events {
 
         my $rows = $sth->fetchall_arrayref;
         $sth->finish;
+        
+        $log->debug("Events retrieved: " . scalar(@$rows));
 
         return $rows, $sth->{NAME};
+    } catch {
+        $self->errstr($_);
+        return undef;
+    };
+    # Remember to have nothing here so it returns the return inside try::catch
+}
+
+sub get_logs {
+    my $self = shift;
+    $self->errstr('');
+
+    my %p = @_;
+    my $filter   = $p{filter}   // {};
+    my $order_by = $p{order_by} // [ { -desc => 'occurrence' }, { -desc => 'log_serial' } ];
+    my $columns  = $p{columns}  // [ 'log_serial', 'event_serial', 'evend_dedup_id', 'owner_uid', 'occurrence', 'log_message' ];
+
+    my ($query, @params) = $self->sqla->select(
+        -columns  => $columns,
+        -from     => 'log',
+        -where    => $filter,
+        -order_by => $order_by,
+    );
+
+    try {
+        my $sth = $self->conn->run(fixup => sub {
+            my $sth = $_->prepare($query);
+            $sth->execute(@params);
+            $sth;
+        });
+
+        my $rows = $sth->fetchall_arrayref;
+        my $names = $sth->{NAME};
+        $sth->finish;
+
+        return $rows, $names;
     } catch {
         $self->errstr($_);
         return undef;
@@ -175,6 +219,32 @@ sub del_events {
     # Remember to have nothing here so it returns the return inside try::catch
 }
 
+sub add_log {
+    my $self = shift;
+    $self->errstr('');
+
+    my %p = @_;
+    my $log_entry = {
+        event_serial   => $p{event_serial},
+        evend_dedup_id => $p{evend_dedup_id},
+        owner_uid      => $p{owner_uid},
+        log_message    => $p{log_message},
+    };
+
+    my ($query, @params) = $self->sqla->insert('log', $log_entry);
+
+    try {
+        $self->conn->run(fixup => sub {
+            $_->do($query, {}, @params);
+        });
+        return 1;
+    } catch {
+        $self->errstr($_);
+        return undef;
+    };
+    # Remember to have nothing here so it returns the return inside try::catch
+}
+
 sub upd_events {
     my $self = shift;
     $self->errstr('');
@@ -183,6 +253,12 @@ sub upd_events {
     my $filter   = $p{filter}   // {};
     my $restrict = $p{restrict} // {};
     my $update   = $p{update}   // {};
+
+    foreach my $column (keys %$update) {
+        if (ref $update->{$column}) {
+            $update->{$column} = encode_json $update->{$column};
+        }
+    }
 
     my ($query, @params) = $self->sqla->update(-table => 'active_events',
                                                -where => [ -and => [ $filter, $restrict ] ],

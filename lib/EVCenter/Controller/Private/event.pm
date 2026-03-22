@@ -1,5 +1,7 @@
 package EVCenter::Controller::Private::event;
 use Moose;
+use JSON::MaybeXS qw(decode_json encode_json);
+use POSIX qw(strftime);
 use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
@@ -105,6 +107,117 @@ sub get :Private {
 	
 }
 
+sub upd :Private {
+	my ( $self, $c, $params ) = @_;
+
+	$params = {} if (! defined $params);
+	
+	$c->log->debug("Received update request with params: " . encode_json($params));
+
+	if (ref $params ne 'HASH') {
+		return { error => {
+				code => 'INVALID_METHOD_PARAMETER',
+				message => 'Invalid method parameter(s). Must provide a hashref'
+				} };
+	}
+
+	$params->{restrict} = $c->session->{srf};
+	my $username = $c->user->id;
+	my $groups = $c->session->{user_groups} || [];
+	my $group_uid = @$groups ? $groups->[0] : undef;
+
+	$c->log->debug("Applying update with filter: " . encode_json($params->{filter}) . " and restrict: " . encode_json($params->{restrict}));
+
+	my ($rows, $columns) = $c->model('Event')->get_events(
+		filter   => $params->{filter},
+		restrict => $params->{restrict},
+		columns  => [ 'serial', 'ack', 'suppression', 'severity', 'clear_time', 'start_severity', 'dedup_id', 'owner_uid' ],
+	);
+
+	$c->log->debug("Events retrieved for update: " . encode_json({ rows => $rows, columns => $columns }));
+
+	if (! defined $rows) {
+		return { error => {
+					code => 'DATABASE_ACTION_FAILURE',
+					message => 'Failed to load events for update: ' . $c->model('Event')->errstr,
+				} };
+	}
+
+	my %column_index = map { $columns->[$_] => $_ } 0 .. $#$columns;
+	my @base_history_actions;
+	if (exists $params->{update}{ack}) {
+		push @base_history_actions, $params->{update}{ack} ? 'acked' : 'unacked';
+	}
+	if (exists $params->{update}{suppression}) {
+		push @base_history_actions, $params->{update}{suppression} ? 'suppressed' : 'unsuppressed';
+	}
+	if (exists $params->{update}{severity} && ! exists $params->{update}{restore_severity}) {
+		push @base_history_actions, $params->{update}{severity} == 0 ? 'cleared' : 'uncleared';
+	}
+	if (exists $params->{update}{clear_time}) {
+		push @base_history_actions, defined $params->{update}{clear_time} ? 'cleared' : 'uncleared';
+	}
+
+	my $updated_rows = 0;
+	foreach my $row (@$rows) {
+		my %update = (%{$params->{update}});
+		my @history_actions = @base_history_actions;
+
+		if (exists $update{restore_severity} && $update{restore_severity}) {
+			$update{severity} = $row->[$column_index{start_severity}];
+			delete $update{restore_severity};
+			if (defined $update{severity}) {
+				push @history_actions, $update{severity} == 0 ? 'cleared' : 'uncleared';
+			}
+		}
+
+		my $log_message = join(', ', @history_actions);
+		$update{owner_uid} = $username;
+		$update{group_uid} = $group_uid;
+
+		$c->log->debug("Updating event serial " . $row->[$column_index{serial}] . " with update: " . encode_json(\%update));
+
+		my $rows = $c->model('Event')->upd_events(
+			filter   => { serial => $row->[$column_index{serial}] },
+			restrict => $params->{restrict},
+			update   => \%update,
+		);
+
+		if (! defined $rows) {
+			return { error => {
+						code => 'DATABASE_ACTION_FAILURE',
+						message => 'Failed to update events: ' . $c->model('Event')->errstr,
+					} };
+		}
+
+		if ($log_message) {
+			my $log_result = $c->model('Event')->add_log(
+				event_serial   => $row->[$column_index{serial}],
+				evend_dedup_id => $row->[$column_index{dedup_id}],
+				owner_uid      => $row->[$column_index{owner_uid}],
+				log_message    => $log_message,
+			);
+			if (! defined $log_result) {
+				return { error => {
+							code => 'DATABASE_ACTION_FAILURE',
+							message => 'Failed to add log entry: ' . $c->model('Event')->errstr,
+						} };
+			}
+		}
+
+		$updated_rows += $rows;
+	}
+
+	if (defined $updated_rows) {
+		return { result => { rows => $updated_rows } };
+	} else {
+		return { error => {
+					code => 'DATABASE_ACTION_FAILURE',
+					message => 'Failed to update events: ' . $c->model('Event')->errstr,
+				} };
+	}
+}
+
 sub get_columns :Private {
 	my ( $self, $c ) = @_;
 
@@ -115,6 +228,32 @@ sub get_columns :Private {
 		return { error => {
 					code => 'DATABASE_ACTION_FAILURE',
 					message => 'Failed to get columns',
+				} };
+	}
+}
+
+sub get_log :Private {
+	my ( $self, $c, $params ) = @_;
+
+	$params = {} if (! defined $params);
+
+	if (ref $params ne 'HASH') {
+		return { error => {
+				code => 'INVALID_METHOD_PARAMETER',
+				message => 'Invalid method parameter(s). Must provide a hashref'
+				} };
+	}
+
+	my ($rows, $columns) = $c->model('Event')->get_logs(
+		filter => $params->{filter} || {},
+	);
+
+	if (defined $rows) {
+		return { result => { rows => $rows, columns => $columns } };
+	} else {
+		return { error => {
+					code => 'DATABASE_ACTION_FAILURE',
+					message => 'Failed to get logs: ' . $c->model('Event')->errstr,
 				} };
 	}
 }

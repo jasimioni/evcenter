@@ -1,20 +1,73 @@
-(function(a) {
-a.jgrid = a.jgrid || {};
-a.extend(a.jgrid,{
+//NETHERLANDS
+/*global jQuery, define */
+(function( factory ) {
+	"use strict";
+	if ( typeof define === "function" && define.amd ) {
+		// AMD. Register as an anonymous module.
+		define([
+			"jquery",
+			"../grid.base"
+		], factory );
+	} else {
+		// Browser globals
+		factory( jQuery );
+	}
+}(function( $ ) {
+
+$.jgrid = $.jgrid || {};
+if(!$.jgrid.hasOwnProperty("regional")) {
+	$.jgrid.regional = [];
+}
+$.jgrid.regional["nl"] = {
         defaults:
         {
             recordtext: "regels {0} - {1} van {2}",
             emptyrecords: "Geen data gevonden.",
-            loadtext: "laden...",
-            pgtext: "pagina  {0}  van {1}"
+            loadtext: "Laden...",
+            pgtext: "pagina  {0}  van {1}",
+			savetext: "Saving...",
+			pgfirst : "Eerste Pagina",
+			pglast : "Laatste Pagina",
+			pgnext : "Volgende Pagina",
+			pgprev : "Vorige Pagina",
+			pgrecs : "Records per Pagina",
+			showhide: "Schakelen Uitklappen Inklappen Grid",
+			// mobile
+			pagerCaption : "Grid::Page Settings",
+			pageText : "Page:",
+			recordPage : "Records per Page",
+			nomorerecs : "No more records...",
+			scrollPullup: "Pull up to load more...",
+			scrollPulldown : "Pull down to refresh...",
+			scrollRefresh : "Release to refresh...",
+			valT : "checked",
+			valF : "unchecked",
+			selectLine : "Select row",
+			selectAllLines : "Select all rows",
+		searchCols : "Search on grid columns",
+		subGrid : "Click on Subgrid cell to expand/collapse row",
+		rowNumbers : "Row number information column",
+		subGridExpand : "Click to expand Subgrid",
+		subGridCollapse : "Click to collapse Subgrid",
+		valueCheckbox : "Checkbox"
         },
         search:
         {
             caption: "Zoeken...",
             Find: "Zoek",
             Reset: "Herstellen",
-            odata: [{ oper:'eq', text:"gelijk aan"},{ oper:'ne', text:"niet gelijk aan"},{ oper:'lt', text:"kleiner dan"},{ oper:'le', text:"kleiner dan of gelijk aan"},{ oper:'gt', text:"groter dan"},{ oper:'ge', text:"groter dan of gelijk aan"},{ oper:'bw', text:"begint met"},{ oper:'bn', text:"begint niet met"},{ oper:'in', text:"is in"},{ oper:'ni', text:"is niet in"},{ oper:'ew', text:"eindigd met"},{ oper:'en', text:"eindigd niet met"},{ oper:'cn', text:"bevat"},{ oper:'nc', text:"bevat niet"}],
-            groupOps: [{ op: "AND", text: "alle" }, { op: "OR", text: "een van de"}]
+            odata: [{ oper:'eq', text:"gelijk aan"},{ oper:'ne', text:"niet gelijk aan"},{ oper:'lt', text:"kleiner dan"},{ oper:'le', text:"kleiner dan of gelijk aan"},{ oper:'gt', text:"groter dan"},{ oper:'ge', text:"groter dan of gelijk aan"},{ oper:'bw', text:"begint met"},{ oper:'bn', text:"begint niet met"},{ oper:'in', text:"is in"},{ oper:'ni', text:"is niet in"},{ oper:'ew', text:"eindigt met"},{ oper:'en', text:"eindigt niet met"},{ oper:'cn', text:"bevat"},{ oper:'nc', text:"bevat niet"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'between'}],
+            groupOps: [{ op: "AND", text: "alle" }, { op: "OR", text: "een van de"}],
+			operandTitle : "Klik om de zoekterm te selecteren.",
+			resetTitle : "Herstel zoekterm",
+			addsubgrup : "Add subgroup",
+			addrule : "Add rule",
+			delgroup : "Delete group",
+			delrule : "Delete rule",
+			Close : "Close",
+			Operand : "Operand : ",
+			Operation : "Oper : ",
+			filterFor : "filter for"
         },
         edit:
         {
@@ -27,26 +80,30 @@ a.extend(a.jgrid,{
             bYes: "Ja",
             bNo: "Nee",
             bExit: "Sluiten",
+			nextRow : "Click to edit next row",
+			prevRow : "Click to edit previous row",
             msg:
             {
                 required: "Veld is verplicht",
                 number: "Voer a.u.b. geldig nummer in",
                 minValue: "Waarde moet groter of gelijk zijn aan ",
-                maxValue: "Waarde moet kleiner of gelijks zijn aan",
+                maxValue: "Waarde moet kleiner of gelijk zijn aan",
                 email: "is geen geldig e-mailadres",
                 integer: "Voer a.u.b. een geldig getal in",
                 date: "Voer a.u.b. een geldige waarde in",
                 url: "is geen geldige URL. Prefix is verplicht ('http://' or 'https://')",
-                nodefined : " is not defined!",
-                novalue : " return value is required!",
-                customarray : "Custom function should return array!",
-                customfcheck : "Custom function should be present in case of custom checking!"
+                nodefined : " is niet gedefineerd!",
+                novalue : " return waarde is verplicht!",
+                customarray : "Aangepaste functie moet array teruggeven!",
+                customfcheck : "Aangepaste function moet aanwezig zijn in het geval van aangepaste controle!"
             }
         },
         view:
         {
             caption: "Tonen",
-            bClose: "Sluiten"
+            bClose: "Sluiten",
+			nextRow : "Click to view next row",
+			prevRow : "Click to view previous row"
         },
         del:
         {
@@ -70,7 +127,12 @@ a.extend(a.jgrid,{
             alertcap: "Waarschuwing",
             alerttext: "Selecteer a.u.b. een regel",
             viewtext: "",
-            viewtitle: "Openen"
+            viewtitle: "Openen",
+			savetext: "",
+			savetitle: "Save row",
+			canceltext: "",
+			canceltitle : "Cancel row editing",
+			selectcaption : "Actions..."
         },
         col:
         {
@@ -118,7 +180,7 @@ a.extend(a.jgrid,{
                 },
                 srcformat: "Y-m-d",
                 newformat: "d/m/Y",
-				parseRe : /[Tt\\\/:_;.,\t\s-]/,
+				parseRe : /[#%\\\/:_;.,\t\s-]/,
                 masks:
                 {
                     ISO8601Long: "Y-m-d H:i:s",
@@ -133,7 +195,8 @@ a.extend(a.jgrid,{
                     UniversalSortableDateTime: "Y-m-d H:i:sO",
                     YearMonth: "F, Y"
                 },
-                reformatAfterEdit: false
+                reformatAfterEdit: false,
+				userLocalTime : false
             },
             baseLinkUrl: "",
             showAction: "",
@@ -143,6 +206,47 @@ a.extend(a.jgrid,{
                 disabled: true
             },
             idName: "id"
-        }
-    });
-})(jQuery);
+        },
+	colmenu : {
+		sortasc : "Sort Ascending",
+		sortdesc : "Sort Descending",
+		columns : "Columns",
+		filter : "Filter",
+		grouping : "Group By",
+		ungrouping : "Ungroup",
+		searchTitle : "Get items with value that:",
+		freeze : "Freeze",
+		unfreeze : "Unfreeze",
+		reorder : "Move to reorder",
+		hovermenu: "Click for column quick actions"
+	},
+	clipboard : {
+		menus : {
+			copy_act : "Copy Selected to Clipboard",
+			paste_act : "Paste Update from Clipboard",
+			paste_act_add: "Paste Add from Clipboard",
+			undo_act : "Undo",
+			repeat_act_row : "Repeat row vertically",
+			repeat_act_col : "Repeat column horizontally",
+			cancel_act : "Cancel"
+		},
+		msg : {
+			text_c : "Text copied to clipboard.",
+			select_pos : "Please click position to paste!",
+			info_cap : "Information",
+			total_row : "Total rows: ",
+			insert_row: "Inserted: ",
+			update_row: "Updated: "
+		},
+		errors : {
+			enb_prm : "Copy paste disabled in browser, please enable it!",
+			copy_err : "Failed to copy to clipboard: ",
+			read_err : "Failed to read clipboard contents: ",
+			get_data_err : "Can not get data from clipboard or empty!",
+			start_ind_err : "Start index of the cell is not valid!",
+			local_stor_err : "Local storage not available! Can not store data for undo changes!",
+			not_array_err: "Data can not be converted to array"
+		}
+	}
+    };
+}));

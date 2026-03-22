@@ -1,8 +1,7 @@
 /**
- * jqGrid Czech Translation
- * Pavel Jirak pavel.jirak@jipas.cz
- * doplnil Thomas Wagner xwagne01@stud.fit.vutbr.cz
- * http://trirand.com/blog/ 
+ * jqGrid Catalan Translation
+ * Traducció jqGrid en Catatà per Faserline, S.L.
+ * http://www.faserline.com
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
@@ -26,13 +25,13 @@ $.jgrid = $.jgrid || {};
 if(!$.jgrid.hasOwnProperty("regional")) {
 	$.jgrid.regional = [];
 }
-$.jgrid.regional["cs"] = {
+$.jgrid.regional["ca"] = {
 	defaults : {
-		recordtext: "Zobrazeno {0} - {1} z {2} záznamů",
-	    emptyrecords: "Nenalezeny žádné záznamy",
-		loadtext: "Načítám...",
+		recordtext: "Mostrant {0} - {1} de {2}",
+	    emptyrecords: "Sense registres que mostrar",
+		loadtext: "Carregant...",
 		savetext: "Saving...",
-		pgtext : "Strana {0} z {1}",
+		pgtext : "Pàgina {0} de {1}",
 		pgfirst : "First Page",
 		pglast : "Last Page",
 		pgnext : "Next Page",
@@ -59,11 +58,11 @@ $.jgrid.regional["cs"] = {
 		valueCheckbox : "Checkbox"
 	},
 	search : {
-		caption: "Vyhledávám...",
-		Find: "Hledat",
-		Reset: "Reset",
-	    odata: [{ oper:'eq', text:"rovno"},{ oper:'ne', text:"nerovno"},{ oper:'lt', text:"menší"},{ oper:'le', text:"menší nebo rovno"},{ oper:'gt', text:"větší"},{ oper:'ge', text:"větší nebo rovno"},{ oper:'bw', text:"začíná s"},{ oper:'bn', text:"nezačíná s"},{ oper:'in', text:"je v"},{ oper:'ni', text:"není v"},{ oper:'ew', text:"končí s"},{ oper:'en', text:"nekončí s"},{ oper:'cn', text:"obsahuje"},{ oper:'nc', text:"neobsahuje"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'between'}],
-	    groupOps: [	{ op: "AND", text: "všech" },	{ op: "OR",  text: "některého z" }	],
+		caption: "Cerca...",
+		Find: "Cercar",
+		Reset: "Buidar",
+	    odata: [{ oper:'eq', text:"equal"},{ oper:'ne', text:"not equal"},{ oper:'lt', text:"less"},{ oper:'le', text:"less or equal"},{ oper:'gt', text:"greater"},{ oper:'ge', text:"greater or equal"},{ oper:'bw', text:"begins with"},{ oper:'bn', text:"does not begin with"},{ oper:'in', text:"is in"},{ oper:'ni', text:"is not in"},{ oper:'ew', text:"ends with"},{ oper:'en', text:"does not end with"},{ oper:'cn', text:"contains"},{ oper:'nc', text:"does not contain"},{ oper:'nu', text:'is null'},{ oper:'nn', text:'is not null'}, {oper:'bt', text:'between'}],
+	    groupOps: [	{ op: "AND", text: "tot" },	{ op: "OR",  text: "qualsevol" }	],
 		operandTitle : "Click to select search operation.",
 		resetTitle : "Reset Search Value",
 		addsubgrup : "Add subgroup",
@@ -76,93 +75,94 @@ $.jgrid.regional["cs"] = {
 		filterFor : "filter for"
 	},
 	edit : {
-		addCaption: "Přidat záznam",
-		editCaption: "Editace záznamu",
-		bSubmit: "Uložit",
-		bCancel: "Storno",
-		bClose: "Zavřít",
-		saveData: "Data byla změněna! Uložit změny?",
-		bYes : "Ano",
-		bNo : "Ne",
-		bExit : "Zrušit",
+		addCaption: "Afegir registre",
+		editCaption: "Modificar registre",
+		bSubmit: "Guardar",
+		bCancel: "Cancelar",
+		bClose: "Tancar",
+		saveData: "Les dades han canviat. Guardar canvis?",
+		bYes : "Yes",
+		bNo : "No",
+		bExit : "Cancel",
 		nextRow : "Click to edit next row",
 		prevRow : "Click to edit previous row",
 		msg: {
-		    required:"Pole je vyžadováno",
-		    number:"Prosím, vložte validní číslo",
-		    minValue:"hodnota musí být větší než nebo rovná ",
-		    maxValue:"hodnota musí být menší než nebo rovná ",
-		    email: "není validní e-mail",
-		    integer: "Prosím, vložte celé číslo",
-			date: "Prosím, vložte validní datum",
-			url: "není platnou URL. Vyžadován prefix ('http://' or 'https://')",
-			nodefined : " není definován!",
-			novalue : " je vyžadována návratová hodnota!",
-			customarray : "Custom function mělá vrátit pole!",
-			customfcheck : "Custom function by měla být přítomna v případě custom checking!"
+		    required:"Camp obligatori",
+		    number:"Introdueixi un nombre",
+		    minValue:"El valor ha de ser major o igual que ",
+		    maxValue:"El valor ha de ser menor o igual a ",
+		    email: "no és una direcció de correu vàlida",
+		    integer: "Introdueixi un valor enter",
+			date: "Introdueixi una data correcta ",
+			url: "no és una URL vàlida. Prefix requerit ('http://' or 'https://')",
+			nodefined : " is not defined!",
+			novalue : " return value is required!",
+			customarray : "Custom function should return array!",
+			customfcheck : "Custom function should be present in case of custom checking!"
 		}
 	},
 	view : {
-	    caption: "Zobrazit záznam",
-	    bClose: "Zavřít",
+		caption: "Veure registre",
+		bClose: "Tancar",
 		nextRow : "Click to view next row",
 		prevRow : "Click to view previous row"
 	},
 	del : {
-		caption: "Smazat",
-		msg: "Smazat vybraný(é) záznam(y)?",
-		bSubmit: "Smazat",
-		bCancel: "Storno"
+		caption: "Eliminar",
+		msg: "¿Desitja eliminar els registres seleccionats?",
+		bSubmit: "Eliminar",
+		bCancel: "Cancelar"
 	},
 	nav : {
 		edittext: " ",
-		edittitle: "Editovat vybraný řádek",
+		edittitle: "Modificar fila seleccionada",
 		addtext:" ",
-		addtitle: "Přidat nový řádek",
+		addtitle: "Agregar nova fila",
 		deltext: " ",
-		deltitle: "Smazat vybraný záznam ",
+		deltitle: "Eliminar fila seleccionada",
 		searchtext: " ",
-		searchtitle: "Najít záznamy",
+		searchtitle: "Cercar informació",
 		refreshtext: "",
-		refreshtitle: "Obnovit tabulku",
-		alertcap: "Varování",
-		alerttext: "Prosím, vyberte řádek",
-		viewtext: "",
-		viewtitle: "Zobrazit vybraný řádek",
+		refreshtitle: "Refrescar taula",
+		alertcap: "Avís",
+		alerttext: "Seleccioni una fila",
+		viewtext: " ",
+		viewtitle: "Veure fila seleccionada",
 		savetext: "",
 		savetitle: "Save row",
 		canceltext: "",
 		canceltitle : "Cancel row editing",
 		selectcaption : "Actions..."
 	},
+// setcolumns module
 	col : {
-		caption: "Zobrazit/Skrýt sloupce",
-		bSubmit: "Uložit",
-		bCancel: "Storno"	
+		caption: "Mostrar/ocultar columnes",
+		bSubmit: "Enviar",
+		bCancel: "Cancelar"	
 	},
 	errors : {
-		errcap : "Chyba",
-		nourl : "Není nastavena url",
-		norecords: "Žádné záznamy ke zpracování",
-		model : "Délka colNames <> colModel!"
+		errcap : "Error",
+		nourl : "No s'ha especificat una URL",
+		norecords: "No hi ha dades per processar",
+		model : "Les columnes de noms són diferents de les columnes del model"
 	},
 	formatter : {
-		integer : {thousandsSeparator: " ", defaultValue: '0'},
-		number : {decimalSeparator:".", thousandsSeparator: " ", decimalPlaces: 2, defaultValue: '0.00'},
-		currency : {decimalSeparator:".", thousandsSeparator: " ", decimalPlaces: 2, prefix: "", suffix:"", defaultValue: '0.00'},
+		integer : {thousandsSeparator: ".", defaultValue: '0'},
+		number : {decimalSeparator:",", thousandsSeparator: ".", decimalPlaces: 2, defaultValue: '0,00'},
+		currency : {decimalSeparator:",", thousandsSeparator: ".", decimalPlaces: 2, prefix: "", suffix:"", defaultValue: '0,00'},
 		date : {
 			dayNames:   [
-				"Ne", "Po", "Út", "St", "Čt", "Pá", "So",
-				"Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"
+				"Dg", "Dl", "Dt", "Dc", "Dj", "Dv", "Ds",
+				"Diumenge", "Dilluns", "Dimarts", "Dimecres", "Dijous", "Divendres", "Dissabte"
 			],
 			monthNames: [
-				"Led", "Úno", "Bře", "Dub", "Kvě", "Čer", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro",
-				"Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"
+				"Gen", "Febr", "Març", "Abr", "Maig", "Juny", "Jul", "Ag", "Set", "Oct", "Nov", "Des",
+				"Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Agost", "Setembre", "Octubre", "Novembre", "Desembre"
 			],
-			AmPm : ["do","od","DO","OD"],
+			AmPm : ["am","pm","AM","PM"],
 			S: function (j) {return j < 11 || j > 13 ? ['st', 'nd', 'rd', 'th'][Math.min((j - 1) % 10, 3)] : 'th'},
 			srcformat: 'Y-m-d',
-			newformat: 'd/m/Y',
+			newformat: 'd-m-Y',
 			parseRe : /[#%\\\/:_;.,\t\s-]/,
 			masks : {
 		        ISO8601Long:"Y-m-d H:i:s",
@@ -181,7 +181,7 @@ $.jgrid.regional["cs"] = {
 			userLocalTime : false
 		},
 		baseLinkUrl: '',
-		showAction: '',
+		showAction: 'show',
 	    target: '',
 	    checkbox : {disabled:true},
 		idName : 'id'

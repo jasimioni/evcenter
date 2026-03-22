@@ -1,27 +1,39 @@
-drop table uc_user_roles;
-drop table uc_group_roles;
-drop table uc_group_members;
-
-drop table uc_groups;
-drop table uc_roles;
-drop table uc_users;
-
-create table uc_roles (rolename text, permissions json, details json, filter text, primary key (rolename));
-create table uc_users (username text, password text, details json, filter text, filter_type text, primary key (username));
-create table uc_groups (groupname text, details json, primary key (groupname));
-
-create table uc_user_roles (rolename text not null references uc_roles on delete cascade, username text not null references uc_users, primary key (rolename, username));
-create table uc_group_roles (rolename text not null references uc_roles on delete cascade, groupname text not null references uc_groups, primary key (rolename, groupname));
-create table uc_group_members (groupname text references uc_groups(groupname) on delete cascade, member_type text, member_id text, primary key(groupname, member_type, member_id));
-
-alter table uc_roles OWNER to evcenter;
-alter table uc_users OWNER to evcenter;
-alter table uc_groups OWNER to evcenter;
-alter table uc_user_roles OWNER to evcenter;
-alter table uc_group_roles OWNER to evcenter;
-alter table uc_group_members OWNER to evcenter;
+TRUNCATE ui_filters RESTART IDENTITY;
+TRUNCATE ui_views RESTART IDENTITY;
+TRUNCATE uc_users RESTART IDENTITY CASCADE;
+TRUNCATE uc_groups RESTART IDENTITY CASCADE;
+TRUNCATE uc_group_members RESTART IDENTITY CASCADE;
+TRUNCATE uc_roles RESTART IDENTITY CASCADE;
+TRUNCATE uc_user_roles RESTART IDENTITY CASCADE;
 
 INSERT INTO uc_users (username, password) VALUES ('admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc');
+INSERT INTO uc_users (username, password) VALUES ('probe', 'yFgkdXo3PJjRe1a06ppWScW8tV8');
+INSERT INTO uc_users (username, password) VALUES ('dept1_user1', 'jfPYCpmTIXymcSyDFu8snxl5P2A');
+INSERT INTO uc_users (username, password) VALUES ('dept1_user2', 'Nt302HRseTlly3aFLPuE4oszIEM');
+INSERT INTO uc_users (username, password) VALUES ('dept2_user1', '6CYroZGHPRxcNb1Xc5K/JTvkAus');
+INSERT INTO uc_users (username, password) VALUES ('dept2_user2', 'TVx6GZaN0aFAOo1oPN3+w5bI3Ng');
 INSERT INTO uc_groups (groupname) VALUES ('Company'), ('Dept1'), ('Dept2'), ('Team 1'), ('Team 2'), ('Team 3'), ('Team 4');
-INSERT INTO uc_roles (rolename, permissions, filter) VALUES ('Technology 1', '{ "grant"  : [ { "tools"       : "rw" }, { "webservices" : "ro" } ] }', 'technology = ''Tech1'''),
-                                                            ('Technology 2', '{ "revoke" : [ { "webservices" : "rw" } ] }', 'technology = ''Tech2''');
+INSERT INTO uc_group_members (groupname, member_type, member_id) VALUES
+    ('Dept1', 'user', 'dept1_user1'),
+    ('Dept1', 'user', 'dept1_user2'),
+    ('Dept2', 'user', 'dept2_user1'),
+    ('Dept2', 'user', 'dept2_user2');
+
+INSERT INTO uc_roles (rolename, permissions, filter) VALUES ('Technology 1', '{ "grant"  : [ { "tools"       : "rw" }, { "webservices" : "ro" } ] }', '{ "node" : { "ilike" : "%Tech1%" } }'),
+                                                            ('Technology 2', '{ "revoke" : [ { "webservices" : "rw" } ] }', '{ "node" : { "ilike" : "%Tech2%" }  }' );
+INSERT INTO uc_user_roles (rolename, username) VALUES
+    ('Technology 1', 'dept1_user1'),
+    ('Technology 2', 'dept2_user2');
+
+INSERT INTO ui_filters (filter_name, owner_type, owner, created_by, filter) VALUES
+    ('Critical Events', 'user', 'admin', 'admin', '{ "severity" : 5 }'),
+    ('M and C Events', 'user', 'admin', 'admin', '{ "severity" : [5, 4] }'),
+    ('Node 10.0.0.*', 'user', 'admin', 'admin', '{ "node" : { "like" : "10.0.0.%" } }'),
+    ('Dept1 Critical', 'group', 'Dept1', 'admin', '{ "severity" : 5 }'),
+    ('Team 1 Unsuppressed', 'group', 'Team 1', 'admin', '{ "suppression" : 0 }');
+
+INSERT INTO ui_views (view_name, owner_type, owner, created_by, view) VALUES
+    ('Ops Console', 'user', 'admin', 'admin', '{ "columns" : [ { "name" : "serial", "width" : 70 }, { "name" : "severity", "width" : 80 }, { "name" : "node", "width" : 140 }, { "name" : "event_id", "width" : 140 }, { "name" : "message", "width" : 320 }, { "name" : "last_occurrence", "width" : 160 }, { "name" : "ack", "width" : 60 }, { "name" : "suppression", "width" : 90 } ], "sort" : [ { "field" : "severity", "order" : "desc" }, { "field" : "serial", "order" : "desc" } ] }'),
+    ('Node Summary', 'user', 'admin', 'admin', '{ "columns" : [ { "name" : "node", "width" : 160 }, { "name" : "object", "width" : 160 }, { "name" : "severity", "width" : 80 }, { "name" : "count", "width" : 70 }, { "name" : "last_change", "width" : 160 }, { "name" : "message", "width" : 300 } ], "sort" : [ { "field" : "node", "order" : "asc" }, { "field" : "severity", "order" : "desc" } ] }'),
+    ('Dept1 Triage', 'group', 'Dept1', 'admin', '{ "columns" : [ { "name" : "serial", "width" : 70 }, { "name" : "node", "width" : 150 }, { "name" : "severity", "width" : 80 }, { "name" : "message", "width" : 320 }, { "name" : "owner_uid", "width" : 120 }, { "name" : "last_occurrence", "width" : 160 } ], "sort" : [ { "field" : "severity", "order" : "desc" } ] }'),
+    ('Dept2 Detail', 'group', 'Dept2', 'admin', '{ "columns" : [ { "name" : "serial", "width" : 70 }, { "name" : "source", "width" : 120 }, { "name" : "node", "width" : 140 }, { "name" : "event_id", "width" : 140 }, { "name" : "severity", "width" : 80 }, { "name" : "ack", "width" : 60 }, { "name" : "message", "width" : 300 } ], "sort" : [ { "field" : "serial", "order" : "desc" } ] }');
