@@ -265,8 +265,6 @@ sub upd_events {
                                                -set   => $update,
                                               );
 
-    print "Updating: $query => Params: ", join(", ", @params), "\n";
-
     try {
         my $rows = $self->conn->run(fixup => sub {
             my $rows = $_->do($query, {}, @params);

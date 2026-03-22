@@ -1,7 +1,7 @@
 package EVCenter;
 use Moose;
 use namespace::autoclean;
-use Log::Any::Adapter ('Stdout');
+use Log::Any::Adapter;
 
 use Catalyst::Runtime 5.80;
 
@@ -18,7 +18,6 @@ use Catalyst::Runtime 5.80;
 #                 directory
 
 use Catalyst qw/
-    -Debug
     Static::Simple
     ConfigLoader
 

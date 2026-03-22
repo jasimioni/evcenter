@@ -8,13 +8,14 @@ need to be installed from CPAN directly. Here are the steps:
 ```
 apt update
 
-apt install cpanminus libcatalyst-perl libcatalyst-devel-perl liblog-any-adapter-filehandle-perl \
-            libcatalyst-plugin-compress-perl libcatalyst-plugin-unicode-perl libcatalyst-plugin-smarturi-perl \
+apt install cpanminus libcatalyst-perl libcatalyst-devel-perl postgresql-client \
+            liblog-any-adapter-filehandle-perl libcatalyst-plugin-compress-perl libcatalyst-plugin-unicode-perl \
             libcatalyst-authentication-store-dbix-class-perl libcatalyst-plugin-session-store-file-perl \
             build-essential libcatalyst-plugin-configloader-perl libcatalyst-plugin-static-simple-perl \
             libcatalyst-model-adaptor-perl libcatalyst-view-tt-perl libcatalyst-view-json-perl \
             libdbix-connector-perl libsql-abstract-more-perl libdbd-pg-perl libhash-merge-simple-perl \
-            libcatalyst-action-renderview-perl libdigest-sha-perl starman
+            libcatalyst-plugin-smarturi-perl libcatalyst-action-renderview-perl libdigest-sha-perl \
+            libnet-snmp-perl starman 
 
 sudo cpanm Catalyst::Plugin::Session::State::Stash Log::Any::Adapter::Catalyst Digest::SHA1     
 ```
@@ -23,8 +24,12 @@ sudo cpanm Catalyst::Plugin::Session::State::Stash Log::Any::Adapter::Catalyst D
 
 EVCenter uses PostgreSQL as Backend. The database schema can be created using the contents of:
 
-[database/schema/create_database.sql](https://github.com/jasimioni/evcenter/blob/master/database/schema/create_database.sql)e)
+[DB Schema File](/database/schema/create_database.sql)
 
+Also, there is a sample [population script](/database/schema/PopulateUserControl) which create a few users, views, roles and filters to 
+exemplify the structure:
+
+If using a local PostgreSQL, follow the following steps:
 
 ```
 sudo apt update && sudo apt install -y postgresql
@@ -33,3 +38,18 @@ echo "CREATE DATABASE evcenter OWNER evcenter;" | sudo -u postgres psql
 curl -q https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/create_database.sql | sudo -u postgres psql evcenter
 curl https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/database/schema/PopulateUserControl | sudo -u postgres psql evcenter
 ```
+
+## Executing 
+
+```
+export PERL5LIB="${PERL5LIB}:.:lib"
+export EVCENTER_DBHOST=localhost
+export EVCENTER_DBNAME=evcenter
+export EVCENTER_DBUSER=evcenter
+export EVCENTER_DBPASS=evcenter
+export EVCENTER_DBPORT=5432
+export EVCENTER_MODE=development
+
+./start.sh
+```
+*EVCENTER_MODE* can be set to 'production' to use starman and multithread

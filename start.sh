@@ -1,10 +1,9 @@
 #!/bin/bash
 
-export PERL5LIB=$PERL5LIB:.
-export EVCENTER_DBHOST=10.118.0.185
-export EVCENTER_DBNAME=evcenter
-export EVCENTER_DBUSER=evcenter
-export EVCENTER_DBPASS=evcenter
-export EVCENTER_DBPORT=5432
-
-perl script/evcenter_server.pl -r -d
+if [ "$EVCENTER_MODE" = "production" ]; then
+    echo "Starting EVCenter in production mode..."
+    exec starman --listen "0.0.0.0:3000" --workers 5 evcenter.psgi
+else
+    echo "Starting EVCenter in development mode..."
+    exec perl script/evcenter_server.pl -r -d
+fi
