@@ -6,4 +6,7 @@ Makefile.old
 pm_to_blib
 database/schema/schema_history/*
 blib/
-
+Makefile
+META.yml
+MYMETA.yml
+MYMETA.json

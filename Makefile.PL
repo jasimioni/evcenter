@@ -12,7 +12,6 @@ all_from 'lib/EVCenter.pm';
 requires 'Catalyst::Runtime' => '5.90042';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
-requires 'Catalyst::Plugin::Server::JSONRPC';
 requires 'Catalyst::Action::RenderView';
 requires 'Moose';
 requires 'common::sense';
