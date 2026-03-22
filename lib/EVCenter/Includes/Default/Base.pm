@@ -5,6 +5,7 @@ $action->{before} = sub {
 $action->{process} = sub {
     $event->{message} = $data->{message};
     $event->{severity} = $data->{severity};
+    $event->{object}   = $data->{object};
     $event->{dedup_id} = $data->{dedup_id};
     $event->{event_id} = $data->{event_id};
     if ($event->{severity} <= 1) {
