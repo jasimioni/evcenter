@@ -6,9 +6,9 @@ need to be installed from CPAN directly. Here are the steps:
 ##  Pre-Requisites Installation (Ubuntu 24.04)
 
 ```
-apt update
+sudo apt update
 
-apt install cpanminus libcatalyst-perl libcatalyst-devel-perl postgresql-client \
+sudo apt install -y cpanminus libcatalyst-perl libcatalyst-devel-perl postgresql-client \
             liblog-any-adapter-filehandle-perl libcatalyst-plugin-compress-perl libcatalyst-plugin-unicode-perl \
             libcatalyst-authentication-store-dbix-class-perl libcatalyst-plugin-session-store-file-perl \
             build-essential libcatalyst-plugin-configloader-perl libcatalyst-plugin-static-simple-perl \
@@ -41,6 +41,19 @@ curl https://raw.githubusercontent.com/jasimioni/evcenter/refs/heads/master/data
 
 ## Executing 
 
+Clone the repository:
+
+```
+git clone https://github.com/jasimioni/evcenter.git
+```
+
+Go to the directory:
+```
+cd evcenter
+```
+
+Set the environment variables (if the PostgreSQL is local, defaults are good). Call `start.sh` to run it.
+
 ```
 export PERL5LIB="${PERL5LIB}:.:lib"
 export EVCENTER_DBHOST=localhost
@@ -52,4 +65,5 @@ export EVCENTER_MODE=development
 
 ./start.sh
 ```
+
 *EVCENTER_MODE* can be set to 'production' to use starman and multithread
